@@ -1,0 +1,135 @@
+<div class="admin-dashboard-page">
+  <div class="admin-dashboard-page__header">
+    <div>
+      <h1>Supervision Générale &amp; Scores</h1>
+      <p class="text-secondary">Statistiques en temps réel des simulations et candidats inscrits sur IntervIA</p>
+    </div>
+  </div>
+
+      <!-- KPI Cards -->
+      <div class="admin-page__kpi-grid">
+        <div class="admin-page__kpi-card">
+          <div class="admin-page__kpi-icon admin-page__kpi-icon--primary">
+            <app-icon name="people" aria-hidden="true" />
+          </div>
+          <div>
+            <div class="admin-page__kpi-value">{{ usersCount() }}</div>
+            <div class="admin-page__kpi-label">Candidats Inscrits</div>
+          </div>
+        </div>
+
+        <div class="admin-page__kpi-card">
+          <div class="admin-page__kpi-icon admin-page__kpi-icon--success">
+            <app-icon name="videocam" aria-hidden="true" />
+          </div>
+          <div>
+            <div class="admin-page__kpi-value">{{ activeSimulationsCount() }}</div>
+            <div class="admin-page__kpi-label">Simulations cette semaine</div>
+          </div>
+        </div>
+
+        <div class="admin-page__kpi-card">
+          <div class="admin-page__kpi-icon admin-page__kpi-icon--warning">
+            <app-icon name="military_tech" aria-hidden="true" />
+          </div>
+          <div>
+            <div class="admin-page__kpi-value">{{ averageGlobalScore() }}%</div>
+            <div class="admin-page__kpi-label">Score Global Moyen</div>
+          </div>
+        </div>
+
+        <div class="admin-page__kpi-card">
+          <div class="admin-page__kpi-icon admin-page__kpi-icon--info">
+            <app-icon name="verified" aria-hidden="true" />
+          </div>
+          <div>
+            <div class="admin-page__kpi-value">{{ validatedCandidatesCount() }}</div>
+            <div class="admin-page__kpi-label">Candidats Certifiés</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart: Scores supervision -->
+      <div class="admin-page__card">
+        <div class="admin-page__card-header">
+          <app-icon name="trending_up" aria-hidden="true" />
+          <h3>Distribution des Scores des Candidats (Derniers 30 jours)</h3>
+        </div>
+        <div class="admin-page__chart-box">
+          <svg class="admin-page__chart-svg" viewBox="0 0 600 170" preserveAspectRatio="none" role="img" aria-label="Graphique de distribution des scores">
+            <!-- Grid lines -->
+            <line x1="50" y1="20" x2="580" y2="20" class="grid-line" />
+            <line x1="50" y1="60" x2="580" y2="60" class="grid-line" />
+            <line x1="50" y1="100" x2="580" y2="100" class="grid-line" />
+            <line x1="50" y1="140" x2="580" y2="140" class="grid-line" />
+
+            <!-- Axe Y title -->
+            <text x="15" y="85" class="axis-title" transform="rotate(-90 15 85)" text-anchor="middle">Nb candidats</text>
+
+            <!-- Bar 1: < 50 % -->
+            <text x="110" y="95" text-anchor="middle" class="bar-value">12</text>
+            <rect x="85" y="105" width="50" height="35" rx="4" class="bar-col bar-col--warm-gray" />
+            <text x="110" y="158" text-anchor="middle" class="bar-label">&lt; 50 %</text>
+
+            <!-- Bar 2: 50 - 69 % -->
+            <text x="240" y="65" text-anchor="middle" class="bar-value">28</text>
+            <rect x="215" y="75" width="50" height="65" rx="4" class="bar-col bar-col--bordeaux-light" />
+            <text x="240" y="158" text-anchor="middle" class="bar-label">50 - 69 %</text>
+
+            <!-- Bar 3: 70 - 84 % -->
+            <text x="370" y="35" text-anchor="middle" class="bar-value">45</text>
+            <rect x="345" y="45" width="50" height="95" rx="4" class="bar-col bar-col--bordeaux-med" />
+            <text x="370" y="158" text-anchor="middle" class="bar-label">70 - 84 %</text>
+
+            <!-- Bar 4: 85 - 100 % -->
+            <text x="500" y="15" text-anchor="middle" class="bar-value">63</text>
+            <rect x="475" y="25" width="50" height="115" rx="4" class="bar-col bar-col--bordeaux" />
+            <text x="500" y="158" text-anchor="middle" class="bar-label">85 - 100 %</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Recent Users Table -->
+      <div class="admin-page__card">
+        <div class="admin-page__card-header">
+          <app-icon name="recent_actors" aria-hidden="true" />
+          <h3>Derniers Candidats Enregistrés</h3>
+        </div>
+
+        <div class="admin-page__table-wrapper">
+          <table class="admin-page__table" aria-label="Liste des derniers candidats">
+            <thead>
+              <tr>
+                <th>Nom &amp; Email</th>
+                <th>Objectif</th>
+                <th>Simulations</th>
+                <th>Score Moyen</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of recentUsers(); track user.id) {
+                <tr>
+                  <td>
+                    <div class="font-semibold">{{ user.name }}</div>
+                    <div class="text-xs text-secondary">{{ user.email }}</div>
+                  </td>
+                  <td>
+                    <span class="admin-page__pill admin-page__pill--{{ user.profileType }}">
+                      {{ user.profileType === 'stage' ? 'Stage' : 'Emploi' }}
+                    </span>
+                  </td>
+                  <td>{{ user.simulationsCount }}</td>
+                  <td><strong>{{ user.averageScore }}%</strong></td>
+                  <td>
+                    <span class="admin-page__status-badge" [class.admin-page__status-badge--active]="user.active">
+                      {{ user.active ? 'Actif' : 'Désactivé' }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>

@@ -1,0 +1,466 @@
+<app-navbar></app-navbar>
+
+<main class="prep-page">
+  <div class="prep-page__container">
+
+    <!-- Header section -->
+    <header class="prep-page__header animate-fade-in">
+      <span class="prep-page__kicker">PARCOURS SUR MESURE</span>
+      <h1 class="prep-page__title">Préparer une offre d'emploi ou de stage</h1>
+      <p class="prep-page__subtitle">
+        Indiquez l'offre qui vous intéresse. Notre analyse génère un entraînement personnalisé en 3 étapes : Entretien RH, QCM et Défi de code.
+      </p>
+    </header>
+
+    <!-- STEP 1 : Saisie de l'offre -->
+    @if (currentStep() === 1) {
+      <section class="prep-page__step-form animate-fade-in">
+        <!-- Bandeau beige de guidage -->
+        <div class="prep-page__guide-banner">
+          <app-icon name="lightbulb" [size]="20" aria-hidden="true" />
+          <p>
+            Collez l'offre qui vous intéresse. Nous préparons un entraînement adapté à ce poste, en trois étapes.
+          </p>
+        </div>
+
+        <!-- Onglets -->
+        <div class="prep-page__tabs" role="tablist">
+          <button
+            type="button"
+            class="prep-page__tab"
+            [class.prep-page__tab--active]="activeTab() === 'pasted'"
+            (click)="setTab('pasted')"
+            role="tab"
+            [attr.aria-selected]="activeTab() === 'pasted'">
+            <app-icon name="description" aria-hidden="true" />
+            <span>Coller le texte de l'offre</span>
+          </button>
+
+          <button
+            type="button"
+            class="prep-page__tab"
+            [class.prep-page__tab--active]="activeTab() === 'platform'"
+            (click)="setTab('platform')"
+            role="tab"
+            [attr.aria-selected]="activeTab() === 'platform'">
+            <app-icon name="work" aria-hidden="true" />
+            <span>Choisir une offre de la plateforme</span>
+          </button>
+
+          <button
+            type="button"
+            class="prep-page__tab"
+            [class.prep-page__tab--active]="activeTab() === 'manual'"
+            (click)="setTab('manual')"
+            role="tab"
+            [attr.aria-selected]="activeTab() === 'manual'">
+            <app-icon name="edit_note" aria-hidden="true" />
+            <span>Saisir les informations</span>
+          </button>
+        </div>
+
+        <!-- Tab 1: Pasted Text -->
+        @if (activeTab() === 'pasted') {
+          <div class="prep-page__tab-content animate-fade-in">
+            <div class="prep-page__textarea-wrapper">
+              <label for="offer-text" class="prep-page__label">
+                Texte complet de l'annonce ou de l'offre :
+              </label>
+              <textarea
+                id="offer-text"
+                class="prep-page__textarea"
+                rows="8"
+                [(ngModel)]="pastedText"
+                placeholder="Exemple : Nous recherchons un Développeur Frontend Angular chez TechCorp..."></textarea>
+              <div class="prep-page__textarea-footer">
+                <span class="prep-page__char-counter" [class.prep-page__char-counter--valid]="pastedText().length >= 200">
+                  {{ pastedText().length }} caractères (min. 200)
+                </span>
+                <button type="button" class="prep-page__sample-btn" (click)="useSampleOffer()">
+                  <app-icon name="auto_awesome" [size]="16" aria-hidden="true" />
+                  <span>Utiliser un exemple d'offre</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Tab 2: Platform Offers -->
+        @if (activeTab() === 'platform') {
+          <div class="prep-page__tab-content animate-fade-in">
+            <label class="prep-page__label">Sélectionnez une des offres disponibles :</label>
+            <div class="prep-page__offers-grid">
+              @for (offer of availableOffers(); track offer.id) {
+                <div
+                  class="prep-page__offer-card"
+                  [class.prep-page__offer-card--selected]="selectedOfferId() === offer.id"
+                  (click)="selectedOfferId.set(offer.id)"
+                  role="button"
+                  tabindex="0"
+                  (keydown.enter)="selectedOfferId.set(offer.id)">
+                  <div class="prep-page__offer-badge">{{ offer.contract }}</div>
+                  <h3 class="prep-page__offer-title">{{ offer.title }}</h3>
+                  <div class="prep-page__offer-company">
+                    <app-icon name="business" [size]="16" aria-hidden="true" />
+                    <span>{{ offer.company }} · {{ offer.location }}</span>
+                  </div>
+                  <div class="prep-page__offer-skills">
+                    @for (skill of offer.skills; track skill) {
+                      <span class="prep-page__skill-chip">{{ skill }}</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Tab 3: Manual Input -->
+        @if (activeTab() === 'manual') {
+          <div class="prep-page__tab-content animate-fade-in">
+            <div class="prep-page__manual-grid">
+              <div class="prep-page__field">
+                <label for="manual-title" class="prep-page__label">Intitulé du poste *</label>
+                <input
+                  id="manual-title"
+                  type="text"
+                  class="prep-page__input"
+                  [(ngModel)]="manualTitle"
+                  placeholder="Ex : Développeur Fullstack Angular" />
+              </div>
+
+              <div class="prep-page__field">
+                <label for="manual-company" class="prep-page__label">Entreprise *</label>
+                <input
+                  id="manual-company"
+                  type="text"
+                  class="prep-page__input"
+                  [(ngModel)]="manualCompany"
+                  placeholder="Ex : TechVision" />
+              </div>
+
+              <div class="prep-page__field">
+                <label class="prep-page__label">Type d'opportunité</label>
+                <div class="prep-page__radio-group">
+                  <label class="prep-page__radio-label">
+                    <input type="radio" name="manualType" value="emploi" [(ngModel)]="manualType" />
+                    <span>Emploi (CDI / CDD)</span>
+                  </label>
+                  <label class="prep-page__radio-label">
+                    <input type="radio" name="manualType" value="stage" [(ngModel)]="manualType" />
+                    <span>Stage PFE</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="prep-page__field">
+                <label class="prep-page__label">Niveau attendu</label>
+                <select class="prep-page__select" [(ngModel)]="manualLevel">
+                  <option value="debutant">Débutant / Junior (0 - 1 an)</option>
+                  <option value="intermediaire">Intermédiaire (1 - 3 ans)</option>
+                  <option value="avance">Avancé / Senior (3+ ans)</option>
+                </select>
+              </div>
+
+              <div class="prep-page__field prep-page__field--full">
+                <label class="prep-page__label">Compétences demandées</label>
+                <div class="prep-page__skill-builder">
+                  <div class="prep-page__chips-list">
+                    @for (skill of manualSkills(); track skill) {
+                      <span class="prep-page__chip-removable">
+                        <span>{{ skill }}</span>
+                        <button type="button" (click)="removeManualSkill(skill)" title="Retirer">
+                          <app-icon name="close" [size]="14" aria-hidden="true" />
+                        </button>
+                      </span>
+                    }
+                  </div>
+                  <div class="prep-page__chip-input-row">
+                    <input
+                      type="text"
+                      class="prep-page__input"
+                      [(ngModel)]="manualSkillInput"
+                      (keydown.enter)="addManualSkill()"
+                      placeholder="Ajouter une compétence (ex: React, SQL...)" />
+                    <app-btn variant="secondary" size="md" (onClick)="addManualSkill()">Ajouter</app-btn>
+                  </div>
+                  <div class="prep-page__suggestions">
+                    <span class="prep-page__suggestions-label">Suggestions rapides :</span>
+                    @for (sug of suggestedSkills; track sug) {
+                      <button type="button" class="prep-page__sug-tag" (click)="addSuggestedSkill(sug)">
+                        + {{ sug }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Message d'erreur bienveillant -->
+        @if (errorMessage()) {
+          <div class="prep-page__error-banner animate-fade-in" role="alert">
+            <app-icon name="info" [size]="18" aria-hidden="true" />
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
+
+        <!-- CTA Analyser -->
+        <div class="prep-page__actions">
+          <app-btn
+            variant="primary"
+            size="lg"
+            icon="auto_awesome"
+            (onClick)="startAnalysis()">
+            Analyser mon offre
+          </app-btn>
+        </div>
+      </section>
+    }
+
+    <!-- STEP 2 : Écran d'attente apaisant (~3 secondes) -->
+    @if (currentStep() === 2) {
+      <section class="prep-page__loading-view animate-fade-in">
+        <div class="prep-page__loading-card">
+          <div class="prep-page__loading-spinner">
+            <app-icon name="sync" class="prep-page__spin" [size]="36" aria-hidden="true" />
+          </div>
+
+          <h2 class="prep-page__loading-title">Analyse personnalisée en cours</h2>
+          <p class="prep-page__loading-desc">
+            Prenez une respiration. Nous construisons votre simulateur sur mesure à partir de votre offre.
+          </p>
+
+          <!-- Barre de progression -->
+          <div class="prep-page__progress-bar">
+            <div class="prep-page__progress-fill" [style.width.%]="analysisProgressPercent()"></div>
+          </div>
+
+          <!-- 3 Étapes progressives -->
+          <div class="prep-page__checklist">
+            <div class="prep-page__check-item" [class.prep-page__check-item--done]="analysisStepIndex() >= 0">
+              <app-icon [name]="analysisStepIndex() >= 0 ? 'check_circle' : 'radio_button_unchecked'" [size]="20" aria-hidden="true" />
+              <span>Lecture et compréhension de l'offre</span>
+            </div>
+
+            <div class="prep-page__check-item" [class.prep-page__check-item--done]="analysisStepIndex() >= 1">
+              <app-icon [name]="analysisStepIndex() >= 1 ? 'check_circle' : 'radio_button_unchecked'" [size]="20" aria-hidden="true" />
+              <span>Repérage des compétences attendues</span>
+            </div>
+
+            <div class="prep-page__check-item" [class.prep-page__check-item--done]="analysisStepIndex() >= 2">
+              <app-icon [name]="analysisStepIndex() >= 2 ? 'check_circle' : 'radio_button_unchecked'" [size]="20" aria-hidden="true" />
+              <span>Création de votre parcours sur mesure</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- STEP 3 : Votre parcours sur mesure -->
+    @if (currentStep() === 3 && activePlan(); as plan) {
+      <section class="prep-page__roadmap-view animate-fade-in">
+        <!-- Résumé de l'offre -->
+        <div class="prep-page__summary-card">
+          <div class="prep-page__summary-header">
+            <div>
+              <span class="prep-page__summary-type">{{ plan.contractType || (plan.offerType === 'stage' ? 'Stage PFE' : 'Emploi CDI') }} · Niveau {{ plan.detectedLevel }}</span>
+              <h2 class="prep-page__summary-title">{{ plan.offerTitle }}</h2>
+              <div class="prep-page__summary-company">
+                <app-icon name="business" [size]="16" aria-hidden="true" />
+                <span>{{ plan.companyName }}</span>
+              </div>
+            </div>
+            <button type="button" class="prep-page__restart-btn" (click)="restartPreparation()" title="Préparer une autre offre">
+              <app-icon name="refresh" [size]="16" aria-hidden="true" />
+              <span>Changer d'offre</span>
+            </button>
+          </div>
+
+          <!-- Pastilles modifiables -->
+          <div class="prep-page__summary-skills">
+            <span class="prep-page__skills-label">Compétences clés détectées :</span>
+            <div class="prep-page__chips-list">
+              @for (skill of plan.detectedSkills; track skill) {
+                <span class="prep-page__chip-removable">
+                  <span>{{ skill }}</span>
+                  <button type="button" (click)="removeSkillFromPlan(skill)" title="Retirer cette compétence">
+                    <app-icon name="close" [size]="14" aria-hidden="true" />
+                  </button>
+                </span>
+              }
+            </div>
+            <div class="prep-page__add-chip-inline">
+              <input
+                type="text"
+                [(ngModel)]="newSkillInput"
+                (keydown.enter)="addSkillToPlan()"
+                placeholder="Ajouter une compétence..."
+                class="prep-page__inline-input" />
+              <button type="button" class="prep-page__inline-btn" (click)="addSkillToPlan()">
+                + Ajouter
+              </button>
+            </div>
+          </div>
+
+          <!-- Progression globale si entamée -->
+          @if (getCompletedModulesCount() > 0) {
+            <div class="prep-page__global-status">
+              <div class="prep-page__status-text">
+                Progression : <strong>{{ getCompletedModulesCount() }} sur 3 modules terminés</strong>
+                @if (plan.overallScore !== undefined) {
+                  · Score global moyen : <strong>{{ plan.overallScore }}%</strong>
+                }
+              </div>
+              @if (plan.isCompleted) {
+                <div class="prep-page__completion-badge">
+                  <app-icon name="verified" [size]="18" aria-hidden="true" />
+                  <span>{{ getGlobalAdvice() }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- 3 Cartes de modules -->
+        <div class="prep-page__modules-grid">
+          <!-- Module 1: Entretien RH -->
+          <div class="prep-page__module-card" [class.prep-page__module-card--completed]="plan.rhModule.progress.status === 'termine'">
+            <div class="prep-page__module-top">
+              <div class="prep-page__module-icon-wrap prep-page__module-icon-wrap--rh">
+                <app-icon name="videocam" [size]="24" aria-hidden="true" />
+              </div>
+              <div class="prep-page__module-status-badge">
+                @if (plan.rhModule.progress.status === 'termine') {
+                  <span class="prep-page__status-pill prep-page__status-pill--done">
+                    <app-icon name="check" [size]="14" aria-hidden="true" />
+                    {{ plan.rhModule.progress.score }}%
+                  </span>
+                } @else {
+                  <span class="prep-page__status-pill">À faire</span>
+                }
+              </div>
+            </div>
+
+            <h3 class="prep-page__module-title">{{ plan.rhModule.title }}</h3>
+            <p class="prep-page__module-desc">{{ plan.rhModule.description }}</p>
+
+            <div class="prep-page__module-meta">
+              <span><app-icon name="help_outline" [size]="14" aria-hidden="true" /> {{ plan.rhModule.questions.length }} questions</span>
+              <span><app-icon name="schedule" [size]="14" aria-hidden="true" /> Env. {{ plan.rhModule.durationMinutes }} min</span>
+            </div>
+
+            <div class="prep-page__module-themes">
+              <div class="prep-page__theme-label">Thèmes abordés :</div>
+              <ul>
+                @for (th of plan.rhModule.themes; track th) {
+                  <li>{{ th }}</li>
+                }
+              </ul>
+            </div>
+
+            <div class="prep-page__module-cta">
+              <app-btn
+                [variant]="plan.rhModule.progress.status === 'termine' ? 'secondary' : 'primary'"
+                size="md"
+                [fullWidth]="true"
+                (onClick)="launchRhModule()">
+                {{ plan.rhModule.progress.status === 'termine' ? 'Refaire la simulation' : 'Commencer' }}
+              </app-btn>
+            </div>
+          </div>
+
+          <!-- Module 2: QCM -->
+          <div class="prep-page__module-card" [class.prep-page__module-card--completed]="plan.qcmModule.progress.status === 'termine'">
+            <div class="prep-page__module-top">
+              <div class="prep-page__module-icon-wrap prep-page__module-icon-wrap--qcm">
+                <app-icon name="quiz" [size]="24" aria-hidden="true" />
+              </div>
+              <div class="prep-page__module-status-badge">
+                @if (plan.qcmModule.progress.status === 'termine') {
+                  <span class="prep-page__status-pill prep-page__status-pill--done">
+                    <app-icon name="check" [size]="14" aria-hidden="true" />
+                    {{ plan.qcmModule.progress.score }}%
+                  </span>
+                } @else {
+                  <span class="prep-page__status-pill">À faire</span>
+                }
+              </div>
+            </div>
+
+            <h3 class="prep-page__module-title">{{ plan.qcmModule.title }}</h3>
+            <p class="prep-page__module-desc">{{ plan.qcmModule.description }}</p>
+
+            <div class="prep-page__module-meta">
+              <span><app-icon name="help_outline" [size]="14" aria-hidden="true" /> {{ plan.qcmModule.questions.length }} questions</span>
+              <span><app-icon name="schedule" [size]="14" aria-hidden="true" /> Env. {{ plan.qcmModule.durationMinutes }} min</span>
+            </div>
+
+            <div class="prep-page__module-themes">
+              <div class="prep-page__theme-label">Domaines ciblés :</div>
+              <div class="prep-page__domain-chips">
+                @for (d of plan.qcmModule.domains; track d) {
+                  <span class="prep-page__domain-pill">{{ d }}</span>
+                }
+              </div>
+            </div>
+
+            <div class="prep-page__module-cta">
+              <app-btn
+                [variant]="plan.qcmModule.progress.status === 'termine' ? 'secondary' : 'primary'"
+                size="md"
+                [fullWidth]="true"
+                (onClick)="launchQcmModule()">
+                {{ plan.qcmModule.progress.status === 'termine' ? 'Refaire le QCM' : 'Commencer' }}
+              </app-btn>
+            </div>
+          </div>
+
+          <!-- Module 3: Test Technique -->
+          <div class="prep-page__module-card" [class.prep-page__module-card--completed]="plan.techModule.progress.status === 'termine'">
+            <div class="prep-page__module-top">
+              <div class="prep-page__module-icon-wrap prep-page__module-icon-wrap--tech">
+                <app-icon name="code" [size]="24" aria-hidden="true" />
+              </div>
+              <div class="prep-page__module-status-badge">
+                @if (plan.techModule.progress.status === 'termine') {
+                  <span class="prep-page__status-pill prep-page__status-pill--done">
+                    <app-icon name="check" [size]="14" aria-hidden="true" />
+                    {{ plan.techModule.progress.score }}%
+                  </span>
+                } @else {
+                  <span class="prep-page__status-pill">À faire</span>
+                }
+              </div>
+            </div>
+
+            <h3 class="prep-page__module-title">{{ plan.techModule.title }}</h3>
+            <p class="prep-page__module-desc">{{ plan.techModule.description }}</p>
+
+            <div class="prep-page__module-meta">
+              <span><app-icon name="code" [size]="14" aria-hidden="true" /> Langage : {{ plan.techModule.language }}</span>
+              <span><app-icon name="schedule" [size]="14" aria-hidden="true" /> Env. {{ plan.techModule.durationMinutes }} min</span>
+            </div>
+
+            <div class="prep-page__module-themes">
+              <div class="prep-page__theme-label">Sujet de code :</div>
+              <p class="prep-page__exercise-title">{{ plan.techModule.exercise.title }}</p>
+            </div>
+
+            <div class="prep-page__module-cta">
+              <app-btn
+                [variant]="plan.techModule.progress.status === 'termine' ? 'secondary' : 'primary'"
+                size="md"
+                [fullWidth]="true"
+                (onClick)="launchTechModule()">
+                {{ plan.techModule.progress.status === 'termine' ? 'Refaire le défi' : 'Commencer' }}
+              </app-btn>
+            </div>
+          </div>
+        </div>
+      </section>
+    }
+
+  </div>
+</main>

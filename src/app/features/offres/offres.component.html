@@ -1,0 +1,201 @@
+<app-navbar></app-navbar>
+
+<main class="offers-page">
+  <div class="offers-page__container">
+    <!-- Header -->
+    <header class="offers-page__header">
+      <div>
+        <div class="offers-page__tag">
+          <app-icon name="work" aria-hidden="true" />
+          <span>Opportunités Partenaires IntervIA</span>
+        </div>
+        <h1>Offres de Stages &amp; Emplois</h1>
+        <p class="text-secondary">
+          Votre score de simulation actuel est de <strong>{{ candidateScore() }}%</strong>. Postulez en 1 clic grâce à votre profil vérifié !
+        </p>
+      </div>
+
+      <div class="offers-page__score-reminder">
+        <app-icon name="verified" aria-hidden="true" />
+        <div>
+          <div class="font-semibold">Score Candidat Actif : {{ candidateScore() }}%</div>
+          <div class="text-xs">Valide pour toutes les candidatures directes</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Reassuring Info Banner -->
+    <div class="offers-page__info-banner">
+      <app-icon name="handshake" aria-hidden="true" />
+      <div>
+        <div class="offers-page__info-title"></div>
+        <div class="offers-page__info-desc">Chaque offre indique clairement le score attendu.</div>
+      </div>
+    </div>
+
+    @if (feedbackMessage()) {
+      <div class="offers-page__alert animate-fade-in" role="status">
+        <app-icon name="check_circle" aria-hidden="true" />
+        <span>{{ feedbackMessage() }}</span>
+      </div>
+    }
+
+    <!-- Main Content: Sidebar Filters + Cards Grid -->
+    <div class="offers-page__layout">
+      <!-- Sidebar Filters -->
+      <aside class="offers-page__sidebar" aria-label="Filtres de recherche">
+        <div class="offers-page__filter-card">
+          <div class="offers-page__filter-header">
+            <h3>Filtres de Recherche</h3>
+            <button class="offers-page__reset-btn" (click)="resetFilters()">Réinitialiser</button>
+          </div>
+
+          <!-- Filter: Type -->
+          <div class="offers-page__filter-group">
+            <label class="offers-page__filter-label">Objectif :</label>
+            <div class="offers-page__radio-list">
+              <label class="offers-page__radio-item">
+                <input type="radio" name="filterType" value="all" [checked]="filterType() === 'all'" (change)="filterType.set('all')" />
+                <span>Tous</span>
+              </label>
+              <label class="offers-page__radio-item">
+                <input type="radio" name="filterType" value="emploi" [checked]="filterType() === 'emploi'" (change)="filterType.set('emploi')" />
+                <span>Emploi (CDI / CDD)</span>
+              </label>
+              <label class="offers-page__radio-item">
+                <input type="radio" name="filterType" value="stage" [checked]="filterType() === 'stage'" (change)="filterType.set('stage')" />
+                <span>Stage (PFE / Été)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Filter: Contract -->
+          <div class="offers-page__filter-group">
+            <label class="offers-page__filter-label">Contrat :</label>
+            <select
+              [ngModel]="filterContract()"
+              (ngModelChange)="filterContract.set($event)"
+              aria-label="Filtrer par contrat">
+              <option value="all">Tous les contrats</option>
+              <option value="CDI">CDI</option>
+              <option value="Stage">Stage</option>
+            </select>
+          </div>
+
+          <!-- Filter: Score max required -->
+          <div class="offers-page__filter-group">
+            <div class="offers-page__range-header">
+              <label class="offers-page__filter-label">Score requis max :</label>
+              <span class="font-bold">{{ filterScoreMax() }}%</span>
+            </div>
+            <input
+              type="range"
+              min="50"
+              max="100"
+              step="5"
+              [ngModel]="filterScoreMax()"
+              (ngModelChange)="filterScoreMax.set($event)"
+              aria-label="Filtrer par score requis maximal" />
+          </div>
+        </div>
+      </aside>
+
+      <!-- Offers Cards List -->
+      <section class="offers-page__cards-container">
+        @if (loading()) {
+          <div class="offers-page__loading">
+            <app-icon name="sync" class="offers-page__spin-icon" aria-hidden="true" />
+            <p>Chargement des opportunités en cours...</p>
+          </div>
+        } @else if (filteredOffers().length === 0) {
+          <div class="offers-page__empty">
+            <app-icon name="search_off" aria-hidden="true" />
+            <h3>Aucune offre ne correspond à vos filtres</h3>
+            <p class="text-secondary">Essayez d'élargir vos critères de recherche ou réinitialisez les filtres.</p>
+            <app-btn variant="secondary" size="md" (onClick)="resetFilters()">Réinitialiser les filtres</app-btn>
+          </div>
+        } @else {
+          <div class="offers-page__grid">
+            @for (offer of filteredOffers(); track offer.id) {
+              <div class="offers-page__card" [class.offers-page__card--applied]="appliedOfferIds().has(offer.id)">
+                <div class="offers-page__card-top">
+                  <div class="offers-page__type-badge" [class.offers-page__type-badge--stage]="offer.type === 'stage'">
+                    {{ offer.type === 'stage' ? 'Stage' : 'Emploi' }} • {{ offer.contract }}
+                  </div>
+                  <div class="offers-page__score-tag" [class.offers-page__score-tag--unmet]="candidateScore() < offer.requiredScore">
+                    <app-icon name="verified" aria-hidden="true" />
+                    <span>Requis : {{ offer.requiredScore }}%</span>
+                  </div>
+                </div>
+
+                <h2 class="offers-page__title">{{ offer.title }}</h2>
+
+                <div class="offers-page__company-meta">
+                  <span class="offers-page__company"><app-icon name="business" aria-hidden="true" /> {{ offer.company }}</span>
+                  <span class="offers-page__location"><app-icon name="place" aria-hidden="true" /> {{ offer.location }}</span>
+                  <span class="offers-page__salary"><app-icon name="payments" aria-hidden="true" /> {{ offer.salary }}</span>
+                </div>
+
+                <p class="offers-page__desc">{{ offer.description }}</p>
+
+                <div class="offers-page__skills">
+                  @for (skill of offer.skills; track skill) {
+                    <span class="offers-page__skill-tag">{{ skill }}</span>
+                  }
+                </div>
+
+                <!-- Footer with Action or Motivation Warning -->
+                <div class="offers-page__card-footer">
+                  @if (appliedOfferIds().has(offer.id)) {
+                    <div class="offers-page__applied-badge">
+                      <app-icon name="check_circle" aria-hidden="true" />
+                      <span>Candidature envoyée !</span>
+                    </div>
+                  } @else if (candidateScore() >= offer.requiredScore) {
+                    <div class="offers-page__eligible-note">
+                      <app-icon name="check_circle" [size]="16" aria-hidden="true" />
+                      Votre score ({{ candidateScore() }}%) vous rend éligible.
+                    </div>
+                    <app-btn
+                      variant="primary"
+                      size="md"
+                      icon="send"
+                      [loading]="applyingId() === offer.id"
+                      (onClick)="apply(offer)">
+                      Postuler Directement
+                    </app-btn>
+                  } @else {
+                    <div class="offers-page__unmet-notice">
+                      <app-icon name="info" aria-hidden="true" />
+                      <div>
+                        Score requis : <strong>{{ offer.requiredScore }}%</strong> (votre score : {{ candidateScore() }}%).
+                        Entraînez-vous pour débloquer cette offre !
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                      <app-btn
+                        variant="secondary"
+                        size="sm"
+                        icon="play_circle"
+                        routerLink="/simulation-rh">
+                        Améliorer mon score
+                      </app-btn>
+                      <app-btn
+                        variant="ghost"
+                        size="sm"
+                        icon="auto_awesome"
+                        [routerLink]="['/preparation']"
+                        [queryParams]="{ offerId: offer.id }">
+                        Préparer cette offre
+                      </app-btn>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    </div>
+  </div>
+</main>

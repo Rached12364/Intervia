@@ -1,0 +1,54 @@
+<div class="admin-dashboard-page">
+  <div class="admin-dashboard-page__header">
+    <div>
+      <h1>Catalogue des Simulations</h1>
+      <p class="text-secondary">Gérez les modules d'entraînement vidéo et les paramètres d'évaluation</p>
+    </div>
+
+    <app-btn variant="primary" size="md" icon="add" (onClick)="addSimulation()">
+      Créer un Module
+    </app-btn>
+  </div>
+
+      @if (feedbackMessage()) {
+        <div class="admin-page__status-badge admin-page__status-badge--active" role="status">
+          {{ feedbackMessage() }}
+        </div>
+      }
+
+      <div class="admin-page__card">
+        <table class="admin-page__table" aria-label="Tableau des simulations RH">
+          <thead>
+            <tr>
+              <th>Titre &amp; Description</th>
+              <th>Questions</th>
+              <th>Durée Estimée</th>
+              <th>Niveau</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (sim of simulations(); track sim.id) {
+              <tr>
+                <td>
+                  <div class="font-semibold">{{ sim.title }}</div>
+                  <div class="text-xs text-secondary">{{ sim.description }}</div>
+                </td>
+                <td>{{ sim.totalQuestions }} questions</td>
+                <td>{{ sim.estimatedDuration }} min</td>
+                <td>
+                  <span class="admin-page__pill admin-page__pill--emploi">
+                    {{ sim.difficulty | uppercase }}
+                  </span>
+                </td>
+                <td>
+                  <span class="admin-page__status-badge admin-page__status-badge--active">
+                    Actif
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+</div>

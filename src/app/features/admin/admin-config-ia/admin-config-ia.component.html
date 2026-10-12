@@ -1,0 +1,90 @@
+<div class="admin-dashboard-page">
+  <div class="admin-dashboard-page__header">
+    <div>
+      <h1>Configuration des Seuils &amp; Modèles IA</h1>
+      <p class="text-secondary">Ajustez les seuils d'attribution des badges et la pondération des critères d'évaluation</p>
+    </div>
+  </div>
+
+      @if (feedbackMessage()) {
+        <div class="admin-page__status-badge admin-page__status-badge--active" role="status">
+          {{ feedbackMessage() }}
+        </div>
+      }
+
+      <div class="admin-page__card">
+        <form [formGroup]="configForm" (ngSubmit)="saveConfig()" style="display: flex; flex-direction: column; gap: var(--space-xl);">
+          <!-- Section 1: Badge Thresholds -->
+          <div>
+            <div class="admin-page__card-header">
+              <app-icon name="military_tech" aria-hidden="true" />
+              <h3>Seuils d'Attribution des Badges (Score Minimal en %)</h3>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); margin-top: var(--space-md);">
+              <app-form-field label="Badge Or (Min %)">
+                <input type="number" formControlName="goldThreshold" min="50" max="100" />
+              </app-form-field>
+
+              <app-form-field label="Badge Argent (Min %)">
+                <input type="number" formControlName="silverThreshold" min="30" max="100" />
+              </app-form-field>
+
+              <app-form-field label="Badge Bronze (Min %)">
+                <input type="number" formControlName="bronzeThreshold" min="20" max="100" />
+              </app-form-field>
+            </div>
+          </div>
+
+          <!-- Section 2: Weights -->
+          <div>
+            <div class="admin-page__card-header">
+              <app-icon name="pie_chart" aria-hidden="true" />
+              <h3>Pondération des 4 Piliers d'Évaluation RH</h3>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-md); margin-top: var(--space-md);">
+              <app-form-field label="Clarté du Discours (%)">
+                <input type="number" formControlName="clarityWeight" min="0" max="100" />
+              </app-form-field>
+
+              <app-form-field label="Gestion du Stress (%)">
+                <input type="number" formControlName="stressWeight" min="0" max="100" />
+              </app-form-field>
+
+              <app-form-field label="Posture & Regard (%)">
+                <input type="number" formControlName="postureWeight" min="0" max="100" />
+              </app-form-field>
+
+              <app-form-field label="Pertinence Technique (%)">
+                <input type="number" formControlName="technicalWeight" min="0" max="100" />
+              </app-form-field>
+            </div>
+          </div>
+
+          <!-- Section 3: Model -->
+          <div>
+            <div class="admin-page__card-header">
+              <app-icon name="psychology" aria-hidden="true" />
+              <h3>Modèle IA d'Analyse Multimodale</h3>
+            </div>
+
+            <div style="margin-top: var(--space-md);">
+              <app-form-field label="Moteur d'inférence sélectionné">
+                <select formControlName="aiFeedbackModel" aria-label="Moteur IA">
+                  <option value="Gemini 1.5 Pro Recruiter v2">Gemini 1.5 Pro Recruiter v2 (Recommandé)</option>
+                  <option value="Gemini 1.5 Flash Speed">Gemini 1.5 Flash Speed (Faible latence)</option>
+                  <option value="IntervIA Custom On-Premise">IntervIA Custom On-Premise</option>
+                </select>
+              </app-form-field>
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end;">
+            <app-btn variant="primary" size="md" type="submit" icon="save">
+              Enregistrer la Configuration
+            </app-btn>
+          </div>
+        </form>
+      </div>
+</div>

@@ -1,0 +1,147 @@
+<app-navbar></app-navbar>
+
+<main class="profile-page">
+  <div class="profile-page__container">
+    <header class="profile-page__header">
+      <div class="profile-page__avatar-large">
+        {{ profileForm.get('firstName')?.value?.charAt(0) || 'Y' }}
+      </div>
+      <div>
+        <h1>Mon Espace Candidat</h1>
+        <p class="text-secondary">Gérez vos coordonnées, vos objectifs et vos certifications officielles obtenues sur IntervIA</p>
+      </div>
+    </header>
+
+    <div class="profile-page__info-banner">
+      <app-icon name="privacy_tip" aria-hidden="true" />
+      <div>
+        <div class="profile-page__info-title">Confidentialité</div>
+        <div class="profile-page__info-desc">Vous gardez le contrôle sur les informations affichées.</div>
+      </div>
+    </div>
+
+    @if (savedMessage()) {
+      <div class="profile-page__alert profile-page__alert--success animate-fade-in" role="status">
+        <app-icon name="check_circle" aria-hidden="true" />
+        <span>{{ savedMessage() }}</span>
+      </div>
+    }
+
+    @if (exportMessage()) {
+      <div class="profile-page__alert profile-page__alert--info animate-fade-in" role="status">
+        <app-icon name="download_done" aria-hidden="true" />
+        <span>{{ exportMessage() }}</span>
+      </div>
+    }
+
+    <div class="profile-page__grid">
+      <!-- Left Column: Edit Form -->
+      <section class="profile-page__left">
+        <div class="profile-page__card">
+          <div class="profile-page__card-header">
+            <app-icon name="badge" aria-hidden="true" />
+            <h2>Informations Personnelles &amp; Préférences</h2>
+          </div>
+
+          <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="profile-page__form">
+            <div class="profile-page__field-row">
+              <app-form-field label="Prénom" [required]="true">
+                <input type="text" formControlName="firstName" />
+              </app-form-field>
+
+              <app-form-field label="Nom" [required]="true">
+                <input type="text" formControlName="lastName" />
+              </app-form-field>
+            </div>
+
+            <app-form-field label="Adresse Email" [required]="true">
+              <input type="email" formControlName="email" />
+            </app-form-field>
+
+            <app-form-field label="Téléphone">
+              <input type="tel" formControlName="phone" />
+            </app-form-field>
+
+            <app-form-field label="Domaine Principal" [required]="true">
+              <select formControlName="domain" aria-label="Domaine principal">
+                @for (d of domains; track d) {
+                  <option [value]="d">{{ d }}</option>
+                }
+              </select>
+            </app-form-field>
+
+            <!-- Objective Choice -->
+            <app-form-field label="Statut recherché">
+              <div class="profile-page__type-selector">
+                <label class="profile-page__type-pill" [class.profile-page__type-pill--active]="profileForm.get('profileType')?.value === 'stage'">
+                  <input type="radio" formControlName="profileType" value="stage" />
+                  <span>Je recherche un Stage</span>
+                </label>
+                <label class="profile-page__type-pill" [class.profile-page__type-pill--active]="profileForm.get('profileType')?.value === 'emploi'">
+                  <input type="radio" formControlName="profileType" value="emploi" />
+                  <span>Je recherche un Emploi</span>
+                </label>
+              </div>
+            </app-form-field>
+
+            <app-form-field label="Compétences Clés (séparées par virgules)">
+              <input type="text" formControlName="skills" />
+            </app-form-field>
+
+            <div class="profile-page__form-actions">
+              <app-btn variant="primary" size="md" type="submit" icon="save">
+                Enregistrer les Modifications
+              </app-btn>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Right Column: Badges, History & Export Certificate -->
+      <section class="profile-page__right">
+        <!-- Certificate Card -->
+        <div class="profile-page__card profile-page__card--highlight">
+          <div class="profile-page__card-header">
+            <app-icon name="workspace_premium" aria-hidden="true" />
+            <h2>Certificat d'Aptitude RH</h2>
+          </div>
+          <p class="text-xs text-secondary">
+            Ce certificat officiel atteste de votre réussite aux simulations d'entretien avec l'IA. Vous pouvez l'attacher à vos candidatures ou l'ajouter à votre profil LinkedIn.
+          </p>
+
+          <div class="profile-page__certificate-preview">
+            <app-icon name="military_tech" aria-hidden="true" />
+            <div>
+              <div class="font-bold">IntervIA Soft Skills Certified</div>
+              <div class="text-xs">Délivré avec mention Or (88%)</div>
+            </div>
+          </div>
+
+          <app-btn variant="secondary" size="md" icon="file_download" (onClick)="exportCertificate()">
+            Exporter mon Certificat (PDF)
+          </app-btn>
+        </div>
+
+        <!-- Badges & History -->
+        <div class="profile-page__card">
+          <div class="profile-page__card-header">
+            <app-icon name="history" aria-hidden="true" />
+            <h2>Historique &amp; Badges Obtenus</h2>
+          </div>
+
+          <div class="profile-page__history-list">
+            @for (item of history(); track item.id) {
+              <div class="profile-page__history-row">
+                <div>
+                  <div class="font-semibold">Simulation RH du {{ item.date | date:'dd/MM/yyyy' }}</div>
+                  <div class="text-xs text-secondary">Score : {{ item.globalScore }}% • {{ item.suggestions.length }} recommandations</div>
+                </div>
+                <app-score-badge [level]="item.badge || 'bronze'" [score]="item.globalScore"></app-score-badge>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>

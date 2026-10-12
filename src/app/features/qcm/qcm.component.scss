@@ -1,0 +1,171 @@
+.qcm-page {
+  padding: var(--space-xl) var(--space-lg);
+  max-width: var(--content-width);
+  margin: 0 auto;
+
+  // Category Selection
+  &__category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+    margin-top: var(--space-xl);
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__category-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    gap: var(--space-lg);
+    align-items: center;
+
+    &:hover {
+      border-color: var(--color-primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    app-icon {
+      width: 44px;
+      height: 44px;
+      color: var(--color-primary);
+      background: var(--color-primary-light);
+      padding: var(--space-md);
+      border-radius: var(--radius-lg);
+    }
+
+    h3 {
+      font-size: var(--font-size-h2);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text);
+      margin-bottom: 4px;
+    }
+
+    p {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+  }
+
+  // Question Card
+  &__question-container {
+    max-width: 760px;
+    margin: var(--space-lg) auto;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-2xl);
+    box-shadow: var(--shadow-lg);
+    animation: fadeInUp var(--transition-base) both;
+  }
+
+  &__question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+  }
+
+  &__question-title {
+    font-size: var(--font-size-h2);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--space-xl);
+    line-height: var(--line-height-tight);
+  }
+
+  &__options-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-bottom: var(--space-2xl);
+  }
+
+  &__option-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    background: var(--color-surface);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+
+    &:hover {
+      border-color: var(--color-primary);
+      background: var(--color-bg);
+    }
+
+    &--selected {
+      border-color: var(--color-primary);
+      background: var(--color-primary-light);
+
+      .qcm-page__option-radio {
+        border-color: var(--color-primary);
+        background: var(--color-primary);
+        color: #fff;
+      }
+    }
+  }
+
+  &__option-radio {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    flex-shrink: 0;
+  }
+
+  &__option-text {
+    font-size: var(--font-size-body);
+    color: var(--color-text);
+  }
+
+  // Results Review
+  &__result-summary {
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+    padding: var(--space-xl);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+  }
+
+  &__review-item {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-md);
+
+    &--correct {
+      border-left: 4px solid var(--color-success);
+    }
+
+    &--incorrect {
+      border-left: 4px solid var(--color-error);
+    }
+  }
+
+  &__explanation-box {
+    margin-top: var(--space-md);
+    padding: var(--space-md);
+    background: var(--color-bg);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+  }
+}

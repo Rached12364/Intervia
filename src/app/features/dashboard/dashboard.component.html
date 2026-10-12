@@ -1,0 +1,175 @@
+<app-navbar></app-navbar>
+
+<main class="dashboard-page">
+  <div class="dashboard-page__container">
+    @if (adminWarning()) {
+      <div class="dashboard-page__alert animate-fade-in" role="status" style="margin-bottom: var(--space-lg); padding: 12px 16px; background-color: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; border-radius: var(--radius-md); display: flex; align-items: center; gap: 10px; font-size: var(--font-size-sm); font-weight: 500;">
+        <app-icon name="info" [size]="20" aria-hidden="true" />
+        <span>Cet espace est réservé aux administrateurs.</span>
+      </div>
+    }
+
+    <!-- Welcome Header -->
+    <header class="dashboard-page__welcome">
+      <h1>Bonjour {{ userName() || 'Yassine' }}</h1>
+      <p>Prêt pour perfectionner votre prestation d'entretien aujourd'hui ? Prenez votre temps, l'IA s'adapte à votre rythme.</p>
+    </header>
+
+    <div class="dashboard-page__grid">
+      <!-- Left Main Column -->
+      <div class="dashboard-page__left">
+        <!-- Featured Preparation Card -->
+        <div class="dashboard-page__featured-card" style="margin-bottom: var(--space-xl); background: linear-gradient(135deg, #FFF9FA 0%, #FDF3F5 100%); border-color: #F0D5DC;">
+          <div class="dashboard-page__badge-tag" style="background-color: var(--color-primary); color: #fff;">
+            <app-icon name="auto_awesome" aria-hidden="true" />
+            <span>Nouveau · Parcours sur mesure</span>
+          </div>
+          <h2 class="dashboard-page__featured-title">Préparer une offre d'emploi ou de stage</h2>
+          <p class="dashboard-page__featured-desc">
+            Collez une offre ou choisissez-en une : l'IA génère en 3 secondes un entraînement personnalisé associant Entretien RH ciblé, QCM de validation et Défi de code adapté.
+          </p>
+          <app-btn
+            variant="primary"
+            size="lg"
+            icon="auto_awesome"
+            routerLink="/preparation">
+            Créer mon parcours d'entraînement
+          </app-btn>
+        </div>
+
+        <!-- Featured Simulation Card -->
+        @if (featuredSim(); as sim) {
+          <div class="dashboard-page__featured-card">
+            <div class="dashboard-page__badge-tag">
+              <app-icon name="stars" aria-hidden="true" />
+              <span>Recommandé pour vous</span>
+            </div>
+            <h2 class="dashboard-page__featured-title">{{ sim.title }}</h2>
+            <p class="dashboard-page__featured-desc">{{ sim.description }}</p>
+            
+            <div class="dashboard-page__featured-meta">
+              <span><app-icon name="help_outline" aria-hidden="true" /> {{ sim.totalQuestions }} questions</span>
+              <span><app-icon name="schedule" aria-hidden="true" /> Env. {{ sim.estimatedDuration }} min</span>
+              <span><app-icon name="bar_chart" aria-hidden="true" /> Niveau : {{ sim.difficulty }}</span>
+            </div>
+
+            <app-btn
+              variant="secondary"
+              size="lg"
+              icon="play_circle"
+              (onClick)="startSimulation()">
+              Commencer la Simulation RH Vidéo
+            </app-btn>
+          </div>
+        }
+
+        <!-- Visual Performance Indicators -->
+        <section>
+          <h2 class="dashboard-page__section-title">
+            <app-icon name="analytics" aria-hidden="true" />
+            Indicateurs de Performance Récente
+          </h2>
+
+          <div class="dashboard-page__metrics-grid">
+            <div class="dashboard-page__metric-card">
+              <div class="dashboard-page__metric-gauge" role="img" [attr.aria-label]="'Score global moyen: ' + averageGlobalScore() + '%'">
+                <svg class="dashboard-page__ring" viewBox="0 0 80 80" aria-hidden="true">
+                  <circle class="dashboard-page__ring-bg" cx="40" cy="40" r="32" />
+                  <circle class="dashboard-page__ring-fg" cx="40" cy="40" r="32"
+                    [style.strokeDashoffset]="201 - (201 * averageGlobalScore()) / 100" />
+                </svg>
+                <span class="dashboard-page__metric-score">{{ averageGlobalScore() }}%</span>
+              </div>
+              <div class="dashboard-page__metric-label">Score Global Moyen</div>
+            </div>
+
+            <div class="dashboard-page__metric-card">
+              <div class="dashboard-page__metric-gauge" role="img" [attr.aria-label]="'Clarté du discours: ' + clarityScore() + '%'">
+                <svg class="dashboard-page__ring" viewBox="0 0 80 80" aria-hidden="true">
+                  <circle class="dashboard-page__ring-bg" cx="40" cy="40" r="32" />
+                  <circle class="dashboard-page__ring-fg dashboard-page__ring-fg--success" cx="40" cy="40" r="32"
+                    [style.strokeDashoffset]="201 - (201 * clarityScore()) / 100" />
+                </svg>
+                <span class="dashboard-page__metric-score dashboard-page__metric-score--success">{{ clarityScore() }}%</span>
+              </div>
+              <div class="dashboard-page__metric-label">Clarté du Discours</div>
+            </div>
+
+            <div class="dashboard-page__metric-card">
+              <div class="dashboard-page__metric-gauge">
+                <app-score-badge [level]="latestResult()?.badge || 'or'" [score]="latestResult()?.globalScore || 88"></app-score-badge>
+              </div>
+              <div class="dashboard-page__metric-label">Dernier Badge Obtenu</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Quick Access Hub -->
+        <section>
+          <h2 class="dashboard-page__section-title">
+            <app-icon name="space_dashboard" aria-hidden="true" />
+            Modules d'Entraînement Rapide
+          </h2>
+
+          <div class="dashboard-page__hub-grid">
+            <a class="dashboard-page__hub-item"
+               routerLink="/qcm"
+               role="link"
+               tabindex="0"
+               aria-label="Accéder au QCM et quiz technique">
+              <app-icon name="quiz" aria-hidden="true" />
+              <h3>QCM &amp; Quiz Technique</h3>
+              <p>Testez vos connaissances par catégorie (Angular, TS, Perf, Soft Skills)</p>
+            </a>
+
+            <a class="dashboard-page__hub-item"
+               routerLink="/test-technique"
+               role="link"
+               tabindex="0"
+               aria-label="Accéder au test technique code">
+              <app-icon name="code" aria-hidden="true" />
+              <h3>Test Technique Code</h3>
+              <p>Résolvez des exercices de code en situation réelle avec console de test</p>
+            </a>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Column -->
+      <div class="dashboard-page__right">
+        <!-- Reassuring Reminder -->
+        <div class="dashboard-page__reminder">
+          <app-icon name="lightbulb" aria-hidden="true" />
+          <div>
+            <h4>Session de rafraîchissement conseillée</h4>
+            <p>Une courte session de 10 minutes par jour augmente la confiance en soi de 40% lors des vrais entretiens RH !</p>
+          </div>
+        </div>
+
+        <!-- Recommended Job Offers -->
+        <section>
+          <h2 class="dashboard-page__section-title">
+            <app-icon name="work_outline" aria-hidden="true" />
+            Offres Recommandées
+          </h2>
+
+          <div class="dashboard-page__offers-list">
+            @for (offer of recommendedOffers(); track offer.id) {
+              <div class="dashboard-page__offer-item">
+                <div class="dashboard-page__offer-item-title">{{ offer.title }}</div>
+                <div class="dashboard-page__offer-item-company">
+                  <app-icon name="business" aria-hidden="true" />
+                  <span>{{ offer.company }} — {{ offer.location }}</span>
+                </div>
+                <div class="dashboard-page__offer-item-footer">
+                  <span class="dashboard-page__offer-required">Req: {{ offer.requiredScore }}% score</span>
+                  <app-btn variant="ghost" size="sm" icon="arrow_forward" routerLink="/offres">Voir</app-btn>
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</main>

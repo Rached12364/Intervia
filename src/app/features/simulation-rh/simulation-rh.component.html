@@ -1,0 +1,164 @@
+<app-focus-layout
+  title="Simulation RH Vidéo — Entretien Général"
+  [showProgress]="phase() === 'interview'"
+  [progressCurrent]="currentIndex() + 1"
+  [progressTotal]="questions().length"
+  (onQuit)="quitSimulation()">
+
+  <div class="simulation-page">
+    <!-- Phase 1: Devices Check -->
+    @if (phase() === 'check') {
+      <div class="simulation-page__check-card">
+        <h2>Vérification du Matériel &amp; Connexion</h2>
+        <p class="text-secondary">Assurons-nous que votre caméra et votre microphone fonctionnent correctement avant de démarrer.</p>
+
+        <!-- Camera Preview -->
+        @if (cameraGranted()) {
+          <video #videoPreview autoplay muted playsinline class="simulation-page__preview-video"></video>
+        } @else {
+          <div class="simulation-page__preview-placeholder">
+            <app-icon name="videocam_off" aria-hidden="true" />
+            <p>Aperçu caméra indisponible</p>
+          </div>
+        }
+
+        <div class="simulation-page__devices-grid">
+          <div class="simulation-page__device-item"
+               [class.simulation-page__device-item--ok]="cameraGranted()"
+               [class.simulation-page__device-item--warn]="!cameraGranted()">
+            <div>
+              <div class="font-medium">Caméra Web</div>
+              <div class="text-xs">{{ cameraGranted() ? 'Détectée & Prête' : 'Non détectée / Accès refusé' }}</div>
+            </div>
+            <app-icon [name]="cameraGranted() ? 'check_circle' : 'videocam_off'" aria-hidden="true" />
+          </div>
+
+          <div class="simulation-page__device-item"
+               [class.simulation-page__device-item--ok]="micGranted()"
+               [class.simulation-page__device-item--warn]="!micGranted()">
+            <div>
+              <div class="font-medium">Microphone</div>
+              <div class="text-xs">{{ micGranted() ? 'Captation Audio OK' : 'Non détecté' }}</div>
+            </div>
+            <app-icon [name]="micGranted() ? 'check_circle' : 'mic_off'" aria-hidden="true" />
+          </div>
+
+          <div class="simulation-page__device-item"
+               [class.simulation-page__device-item--ok]="connectionOk()"
+               [class.simulation-page__device-item--warn]="!connectionOk()">
+            <div>
+              <div class="font-medium">Connexion Internet</div>
+              <div class="text-xs">{{ connectionOk() ? 'Stable & Connecté' : 'Connexion instable' }}</div>
+            </div>
+            <app-icon [name]="connectionOk() ? 'wifi' : 'wifi_off'" aria-hidden="true" />
+          </div>
+
+          <div class="simulation-page__device-item"
+               [class.simulation-page__device-item--ok]="browserOk()"
+               [class.simulation-page__device-item--warn]="!browserOk()">
+            <div>
+              <div class="font-medium">Navigateur Compatible</div>
+              <div class="text-xs">{{ browserOk() ? 'Compatible & À Jour' : 'Navigateur non supporté' }}</div>
+            </div>
+            <app-icon [name]="browserOk() ? 'verified' : 'error_outline'" aria-hidden="true" />
+          </div>
+        </div>
+
+        @if (!cameraGranted()) {
+          <div class="simulation-page__tips-box simulation-page__tips-box--spaced">
+            <div class="font-semibold">Option de repli sans caméra :</div>
+            <div>Si vous préférez ne pas activer votre caméra, vous pouvez continuer la simulation en <strong>mode réponses écrites (texte)</strong>.</div>
+          </div>
+        }
+
+        <div class="simulation-page__actions-row">
+          @if (!cameraGranted()) {
+            <app-btn variant="secondary" size="md" icon="edit_note" (onClick)="enableTextMode()">
+              Continuer en Mode Texte
+            </app-btn>
+          }
+          <app-btn variant="primary" size="lg" icon="play_arrow" (onClick)="startInterview()">
+            Démarrer la Simulation
+          </app-btn>
+        </div>
+      </div>
+    }
+
+    <!-- Phase 2: Live Interview -->
+    @if (phase() === 'interview') {
+      <div class="simulation-page__interview-grid">
+        <!-- Left: Candidate Video & Soundwave -->
+        <div class="simulation-page__video-container">
+          @if (!fallbackTextMode()) {
+            <video #videoPlayer autoplay muted playsinline class="simulation-page__live-video"></video>
+            <div class="simulation-page__soundwave">
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <div class="bar"></div>
+              <span>Audio Actif</span>
+            </div>
+          } @else {
+            <div class="simulation-page__live-video simulation-page__live-video--fallback">
+              <app-icon name="edit_note" class="simulation-page__fallback-icon" aria-hidden="true" />
+              <h3>Mode Réponses Écrites Actif</h3>
+              <p class="text-xs">Tapez directement vos réponses au clavier ci-contre</p>
+            </div>
+          }
+
+          <!-- AI Recruiter Avatar -->
+          <div class="simulation-page__ai-avatar">
+            <app-icon name="smart_toy" aria-hidden="true" />
+            <span>Recruteur IA</span>
+          </div>
+        </div>
+
+        <!-- Right: Current Question & Timer -->
+        <div class="simulation-page__question-card">
+          <div class="simulation-page__question-header">
+            <span class="simulation-page__question-counter">
+              Question {{ currentIndex() + 1 }} / {{ questions().length }}
+            </span>
+
+            @if (questions()[currentIndex()]; as q) {
+              <app-timer [seconds]="q.duration" [resetKey]="timerResetKey()" (onTimeout)="nextQuestion()"></app-timer>
+            }
+          </div>
+
+          @if (questions()[currentIndex()]; as q) {
+            <div class="simulation-page__question-text">{{ q.text }}</div>
+
+            @if (showTips()) {
+              <div class="simulation-page__tips-box animate-fade-in">
+                <app-icon name="lightbulb" [size]="16" aria-hidden="true" /> <strong>Conseil IA :</strong> {{ q.tips }}
+              </div>
+            }
+
+            @if (fallbackTextMode()) {
+              <textarea
+                class="simulation-page__text-answer"
+                [(ngModel)]="currentTextAnswer"
+                placeholder="Rédigez votre réponse ici..."
+                aria-label="Votre réponse écrite">
+              </textarea>
+            }
+
+            <div class="simulation-page__question-actions">
+              <app-btn variant="ghost" size="sm" icon="help_outline" (onClick)="toggleTips()">
+                {{ showTips() ? 'Masquer le conseil' : 'Afficher le conseil IA' }}
+              </app-btn>
+
+              <app-btn
+                variant="primary"
+                size="md"
+                [icon]="currentIndex() === questions().length - 1 ? 'check' : 'arrow_forward'"
+                [loading]="submitting()"
+                (onClick)="nextQuestion()">
+                {{ currentIndex() === questions().length - 1 ? 'Terminer & Obtenir mon Rapport' : 'Question suivante' }}
+              </app-btn>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</app-focus-layout>

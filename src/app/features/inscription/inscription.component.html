@@ -1,0 +1,628 @@
+<app-navbar></app-navbar>
+
+<main class="register-page">
+  <div class="register-page__container">
+    <div class="register-page__card">
+
+      <!-- SUCCESS CONFIRMATION SCREEN -->
+      @if (isRegistered()) {
+        <div class="register-page__success-state animate-fade-in" role="status" aria-live="polite">
+          <div class="register-page__success-icon">
+            <app-icon name="check_circle" [size]="48" aria-hidden="true" />
+          </div>
+          <h1 class="register-page__title">Bienvenue, {{ step1Form.get('firstName')?.value || 'Yassine' }}.</h1>
+          <p class="register-page__subtitle">Votre profil est prêt.</p>
+          <div class="register-page__success-desc">
+            Redirection vers votre tableau de bord en cours...
+          </div>
+          <div class="register-page__spinner"></div>
+        </div>
+      } @else {
+
+        <!-- Header -->
+        <div class="register-page__header">
+          <app-logo variant="full" theme="dark" [size]="32" />
+          <span class="register-page__kicker">VOTRE PROCHAIN DÉPART</span>
+          <h1 class="register-page__title">Votre potentiel, pas votre stress.</h1>
+          <p class="register-page__subtitle">
+            Préparez votre {{ step1Form.get('profileType')?.value === 'stage' ? 'PFE' : 'premier emploi' }} à votre rythme. On commence simplement par votre profil.
+          </p>
+        </div>
+
+        <!-- Steps Banner -->
+        <div class="register-page__steps-banner">
+          <app-icon name="verified" [size]="20" aria-hidden="true" />
+          <div>
+            <div class="register-page__steps-title">3 étapes pour gagner en confiance</div>
+            <div class="register-page__steps-detail">Entretien RH · QCM · Défi de code</div>
+          </div>
+        </div>
+
+        <!-- Method Selection -->
+        <section class="register-page__method-section">
+          <h2 class="register-page__method-title">Comment souhaitez-vous commencer ?</h2>
+          <div class="register-page__method-grid">
+            <!-- Card 1: CV -->
+            <div class="register-page__method-card"
+                 [class.register-page__method-card--selected]="selectedMethod() === 'cv'"
+                 (click)="selectMethod('cv')"
+                 role="button" tabindex="0"
+                 (keydown.enter)="selectMethod('cv')"
+                 (keydown.space)="$event.preventDefault(); selectMethod('cv')"
+                 [attr.aria-pressed]="selectedMethod() === 'cv'">
+              <div class="register-page__method-icon-wrapper"
+                   [class.register-page__method-icon-wrapper--active]="selectedMethod() === 'cv'">
+                <app-icon name="cloud_upload" [size]="22" aria-hidden="true" />
+              </div>
+              <div class="register-page__method-content">
+                <h3>Importer mon CV</h3>
+                <p>Le plus rapide · environ 1&nbsp;minute</p>
+              </div>
+              @if (selectedMethod() === 'cv') {
+                <app-icon name="check_circle" class="register-page__method-check" aria-hidden="true" />
+              } @else {
+                <app-icon name="chevron_right" class="register-page__method-chevron" aria-hidden="true" />
+              }
+            </div>
+
+            <!-- Card 2: LinkedIn -->
+            <div class="register-page__method-card"
+                 [class.register-page__method-card--selected]="selectedMethod() === 'linkedin'"
+                 (click)="selectMethod('linkedin')"
+                 role="button" tabindex="0"
+                 (keydown.enter)="selectMethod('linkedin')"
+                 (keydown.space)="$event.preventDefault(); selectMethod('linkedin')"
+                 [attr.aria-pressed]="selectedMethod() === 'linkedin'">
+              <div class="register-page__method-icon-wrapper"
+                   [class.register-page__method-icon-wrapper--active]="selectedMethod() === 'linkedin'">
+                <app-icon name="linkedin" [size]="22" aria-hidden="true" />
+              </div>
+              <div class="register-page__method-content">
+                <h3>Continuer avec LinkedIn</h3>
+                <p>Récupérez les informations de votre profil</p>
+              </div>
+              @if (selectedMethod() === 'linkedin') {
+                <app-icon name="check_circle" class="register-page__method-check" aria-hidden="true" />
+              } @else {
+                <app-icon name="chevron_right" class="register-page__method-chevron" aria-hidden="true" />
+              }
+            </div>
+
+            <!-- Card 3: Manual Step-by-Step -->
+            <div class="register-page__method-card"
+                 [class.register-page__method-card--selected]="selectedMethod() === 'manual'"
+                 (click)="selectMethod('manual')"
+                 role="button" tabindex="0"
+                 (keydown.enter)="selectMethod('manual')"
+                 (keydown.space)="$event.preventDefault(); selectMethod('manual')"
+                 [attr.aria-pressed]="selectedMethod() === 'manual'">
+              <div class="register-page__method-icon-wrapper"
+                   [class.register-page__method-icon-wrapper--active]="selectedMethod() === 'manual'">
+                <app-icon name="edit_note" [size]="22" aria-hidden="true" />
+              </div>
+              <div class="register-page__method-content">
+                <h3>Créer mon profil pas à pas</h3>
+                <p>3 étapes courtes · environ 3&nbsp;minutes</p>
+              </div>
+              @if (selectedMethod() === 'manual') {
+                <app-icon name="check_circle" class="register-page__method-check" aria-hidden="true" />
+              } @else {
+                <app-icon name="chevron_right" class="register-page__method-chevron" aria-hidden="true" />
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- OPTION 1 : CV UPLOAD + SUB-CARD                -->
+        <!-- ============================================== -->
+        @if (selectedMethod() === 'cv') {
+          <section class="register-page__cv-section animate-slide-down">
+            @if (!uploadedFile()) {
+              <div class="register-page__dropzone"
+                   (dragover)="onDragOver($event)"
+                   (dragleave)="onDragLeave($event)"
+                   (drop)="onDrop($event)"
+                   [class.register-page__dropzone--dragover]="isDragOver()"
+                   (click)="fileInput.click()"
+                   tabindex="0"
+                   role="button"
+                   (keydown.enter)="fileInput.click()"
+                   (keydown.space)="$event.preventDefault(); fileInput.click()"
+                   aria-label="Zone de dépôt du CV. Cliquez ou glissez un fichier PDF.">
+                <app-icon name="cloud_upload" [size]="32" aria-hidden="true" />
+                <p>Glissez votre CV ici ou <strong>cliquez pour parcourir</strong></p>
+                <span class="register-page__dropzone-hint">Format PDF uniquement · 5 Mo maximum</span>
+                <input #fileInput type="file" accept=".pdf" (change)="onFileSelected($event)" hidden />
+              </div>
+            } @else {
+              <div class="register-page__file-card">
+                <div class="register-page__file-info">
+                  <app-icon name="description" [size]="24" aria-hidden="true" />
+                  <div>
+                    <div class="register-page__file-name">{{ uploadedFile()!.name }}</div>
+                    <div class="register-page__file-size">{{ formatFileSize(uploadedFile()!.size) }}</div>
+                  </div>
+                </div>
+                <div class="register-page__file-status">
+                  <app-icon name="check_circle" [size]="16" aria-hidden="true" />
+                  <span>CV importé avec succès</span>
+                </div>
+                <button class="register-page__file-remove" (click)="removeFile()" title="Supprimer le CV" aria-label="Supprimer le CV importé">
+                  <app-icon name="close" [size]="16" aria-hidden="true" />
+                </button>
+              </div>
+
+              <!-- Quick Verification summary for CV -->
+              <div class="register-page__verification-preview animate-fade-in">
+                <div class="register-page__verify-header">
+                  <app-icon name="fact_check" [size]="18" aria-hidden="true" />
+                  <h4>Informations extraites à valider</h4>
+                </div>
+                <div class="register-page__verify-grid">
+                  <div><strong>Nom :</strong> {{ step1Form.get('firstName')?.value }} {{ step1Form.get('lastName')?.value }}</div>
+                  <div><strong>E-mail :</strong> {{ step1Form.get('email')?.value }}</div>
+                  <div><strong>Objectif :</strong> {{ step1Form.get('profileType')?.value === 'stage' ? 'Stage (PFE)' : 'Emploi' }}</div>
+                </div>
+              </div>
+            }
+
+            @if (fileError()) {
+              <div class="register-page__file-error" role="alert" aria-live="assertive">
+                <app-icon name="error_outline" [size]="16" aria-hidden="true" />
+                <span>{{ fileError() }}</span>
+              </div>
+            }
+          </section>
+        }
+
+        <!-- ============================================== -->
+        <!-- OPTION 2 : LINKEDIN CONNECT                   -->
+        <!-- ============================================== -->
+        @if (selectedMethod() === 'linkedin') {
+          <section class="register-page__linkedin-section animate-slide-down">
+            @if (!isLinkedInConnected()) {
+              <div class="register-page__linkedin-card">
+                <app-icon name="linkedin" [size]="32" aria-hidden="true" />
+                <div>
+                  <h3>Connexion sécurisée avec LinkedIn</h3>
+                  <p>Récupérez automatiquement vos coordonnées, votre parcours et vos compétences en un clic.</p>
+                </div>
+                <app-btn variant="secondary" size="md" [loading]="loading()" (onClick)="simulateLinkedIn()">
+                  Connecter mon compte LinkedIn
+                </app-btn>
+              </div>
+            } @else {
+              <div class="register-page__linkedin-connected animate-fade-in">
+                <div class="register-page__file-status">
+                  <app-icon name="check_circle" [size]="16" aria-hidden="true" />
+                  <span>Profil LinkedIn synchronisé avec succès</span>
+                </div>
+                <div class="register-page__verify-grid">
+                  <div><strong>Candidat :</strong> {{ step1Form.get('firstName')?.value }} {{ step1Form.get('lastName')?.value }}</div>
+                  <div><strong>Formation :</strong> {{ step2Form.get('educationLevel')?.value }} · {{ step2Form.get('institution')?.value }}</div>
+                  <div><strong>Poste visé :</strong> {{ step3Form.get('targetRole')?.value }}</div>
+                </div>
+              </div>
+            }
+          </section>
+        }
+
+        <!-- ============================================== -->
+        <!-- OPTION 3 : 3-STEP PAS-À-PAS MULTI-STEP FORM    -->
+        <!-- ============================================== -->
+        @if (selectedMethod() === 'manual') {
+          <section class="register-page__manual-section animate-slide-down" #stepContainer tabindex="-1">
+            <!-- Stepper Progress Header -->
+            <div class="register-page__stepper-header">
+              <div class="register-page__progress-pill">
+                Étape {{ stepIndex() + 1 }} sur 3
+              </div>
+              <app-stepper [steps]="manualSteps" [currentStep]="stepIndex()"></app-stepper>
+            </div>
+
+            <!-- ÉTAPE 1 : Votre compte -->
+            @if (stepIndex() === 0) {
+              <form [formGroup]="step1Form" class="register-page__form-step animate-fade-in">
+                <h3 class="register-page__step-title">Étape 1 : Votre compte</h3>
+
+                <!-- Goal Choice Cards -->
+                <div class="register-page__field-block">
+                  <label class="register-page__input-label">
+                    Je cherche : <span class="register-page__required" aria-hidden="true">*</span>
+                  </label>
+                  <div class="register-page__profile-choice-grid" role="radiogroup" aria-label="Choix de recherche">
+                    <div class="register-page__choice-card"
+                         [class.register-page__choice-card--selected]="step1Form.get('profileType')?.value === 'stage'"
+                         (click)="step1Form.patchValue({ profileType: 'stage' }); saveDraft()"
+                         role="radio"
+                         tabindex="0"
+                         (keydown.enter)="step1Form.patchValue({ profileType: 'stage' }); saveDraft()"
+                         (keydown.space)="$event.preventDefault(); step1Form.patchValue({ profileType: 'stage' }); saveDraft()"
+                         [attr.aria-checked]="step1Form.get('profileType')?.value === 'stage'">
+                      <app-icon name="school" [size]="24" aria-hidden="true" />
+                      <div>
+                        <strong>Un stage (PFE)</strong>
+                        <span>Projet de fin d'études ou stage pré-embauche</span>
+                      </div>
+                    </div>
+
+                    <div class="register-page__choice-card"
+                         [class.register-page__choice-card--selected]="step1Form.get('profileType')?.value === 'emploi'"
+                         (click)="step1Form.patchValue({ profileType: 'emploi' }); saveDraft()"
+                         role="radio"
+                         tabindex="0"
+                         (keydown.enter)="step1Form.patchValue({ profileType: 'emploi' }); saveDraft()"
+                         (keydown.space)="$event.preventDefault(); step1Form.patchValue({ profileType: 'emploi' }); saveDraft()"
+                         [attr.aria-checked]="step1Form.get('profileType')?.value === 'emploi'">
+                      <app-icon name="work" [size]="24" aria-hidden="true" />
+                      <div>
+                        <strong>Un emploi</strong>
+                        <span>Premier poste, CDI, CDD ou tremplin professionnel</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Names row -->
+                <div class="register-page__form-row">
+                  <app-form-field
+                    label="Prénom"
+                    [required]="true"
+                    [error]="step1Form.get('firstName')?.touched && step1Form.get('firstName')?.invalid ? 'Veuillez renseigner votre prénom.' : ''">
+                    <input
+                      type="text"
+                      formControlName="firstName"
+                      (blur)="saveDraft()"
+                      placeholder="Ex. Yassine"
+                      aria-required="true" />
+                  </app-form-field>
+
+                  <app-form-field
+                    label="Nom"
+                    [required]="true"
+                    [error]="step1Form.get('lastName')?.touched && step1Form.get('lastName')?.invalid ? 'Veuillez renseigner votre nom.' : ''">
+                    <input
+                      type="text"
+                      formControlName="lastName"
+                      (blur)="saveDraft()"
+                      placeholder="Ex. Ben Salem"
+                      aria-required="true" />
+                  </app-form-field>
+                </div>
+
+                <!-- Email -->
+                <app-form-field
+                  label="Adresse e-mail"
+                  [required]="true"
+                  [error]="step1Form.get('email')?.touched && step1Form.get('email')?.invalid ? 'Veuillez indiquer une adresse e-mail valide (ex. nom@domaine.com).' : ''">
+                  <input
+                    type="email"
+                    formControlName="email"
+                    (blur)="saveDraft()"
+                    placeholder="votre.email@exemple.com"
+                    autocomplete="email"
+                    aria-required="true" />
+                </app-form-field>
+
+                <!-- Password with Toggle & Strength Indicator -->
+                <div class="register-page__password-wrapper">
+                  <app-form-field
+                    label="Mot de passe"
+                    [required]="true"
+                    [error]="step1Form.get('password')?.touched && step1Form.get('password')?.invalid ? '8 caractères minimum, avec au moins 1 majuscule et 1 chiffre.' : ''">
+                    <div class="register-page__input-with-icon">
+                      <input
+                        [type]="showPassword() ? 'text' : 'password'"
+                        formControlName="password"
+                        (blur)="saveDraft()"
+                        placeholder="••••••••"
+                        autocomplete="new-password"
+                        aria-required="true" />
+                      <button
+                        type="button"
+                        class="register-page__eye-btn"
+                        (click)="showPassword.set(!showPassword())"
+                        [attr.aria-label]="showPassword() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
+                        <app-icon [name]="showPassword() ? 'visibility_off' : 'visibility'" [size]="18" aria-hidden="true" />
+                      </button>
+                    </div>
+                  </app-form-field>
+
+                  <!-- Strength bar -->
+                  @if (step1Form.get('password')?.value) {
+                    <div class="register-page__strength-box" role="status" aria-live="polite">
+                      <div class="register-page__strength-bar">
+                        <div
+                          class="register-page__strength-fill"
+                          [style.width.%]="passwordStrength().score * 25"
+                          [style.background-color]="passwordStrength().color">
+                        </div>
+                      </div>
+                      <span class="register-page__strength-label">
+                        Sécurité : <strong>{{ passwordStrength().label }}</strong>
+                      </span>
+                    </div>
+                  }
+                </div>
+
+                <!-- Confirm Password -->
+                <app-form-field
+                  label="Confirmation du mot de passe"
+                  [required]="true"
+                  [error]="(step1Form.get('confirmPassword')?.touched && (step1Form.get('confirmPassword')?.invalid || step1Form.hasError('passwordMismatch'))) ? 'Les deux mots de passe doivent être identiques.' : ''">
+                  <div class="register-page__input-with-icon">
+                    <input
+                      [type]="showConfirmPassword() ? 'text' : 'password'"
+                      formControlName="confirmPassword"
+                      (blur)="saveDraft()"
+                      placeholder="••••••••"
+                      autocomplete="new-password"
+                      aria-required="true" />
+                    <button
+                      type="button"
+                      class="register-page__eye-btn"
+                      (click)="showConfirmPassword.set(!showConfirmPassword())"
+                      [attr.aria-label]="showConfirmPassword() ? 'Masquer la confirmation' : 'Afficher la confirmation'">
+                      <app-icon [name]="showConfirmPassword() ? 'visibility_off' : 'visibility'" [size]="18" aria-hidden="true" />
+                    </button>
+                  </div>
+                </app-form-field>
+              </form>
+            }
+
+            <!-- ÉTAPE 2 : Votre parcours -->
+            @if (stepIndex() === 1) {
+              <form [formGroup]="step2Form" class="register-page__form-step animate-fade-in">
+                <h3 class="register-page__step-title">Étape 2 : Votre parcours</h3>
+
+                <div class="register-page__form-row">
+                  <app-form-field label="Niveau d'études" [required]="true">
+                    <select formControlName="educationLevel" (change)="saveDraft()" aria-label="Niveau d'études">
+                      <option value="Licence">Licence</option>
+                      <option value="Master">Master</option>
+                      <option value="Cycle ingénieur">Cycle ingénieur</option>
+                      <option value="Autre">Autre</option>
+                    </select>
+                  </app-form-field>
+
+                  <app-form-field
+                    label="Établissement"
+                    [required]="true"
+                    [error]="step2Form.get('institution')?.touched && step2Form.get('institution')?.invalid ? 'Veuillez préciser votre établissement d\'enseignement.' : ''">
+                    <input
+                      type="text"
+                      formControlName="institution"
+                      (blur)="saveDraft()"
+                      placeholder="Ex. INSAT, ESPRIT, ENIT, FST..."
+                      aria-required="true" />
+                  </app-form-field>
+                </div>
+
+                <div class="register-page__form-row">
+                  <app-form-field label="Domaine" [required]="true">
+                    <select formControlName="domain" (change)="saveDraft()" aria-label="Domaine">
+                      <option value="Développement web">Développement web</option>
+                      <option value="Data/IA">Data / Intelligence Artificielle</option>
+                      <option value="Réseaux et sécurité">Réseaux &amp; Sécurité</option>
+                      <option value="Autre">Autre spécialité</option>
+                    </select>
+                  </app-form-field>
+
+                  <app-form-field label="Ville" [required]="true">
+                    <input
+                      type="text"
+                      list="cities-list"
+                      formControlName="city"
+                      (blur)="saveDraft()"
+                      placeholder="Ex. Tunis"
+                      aria-label="Ville de résidence" />
+                    <datalist id="cities-list">
+                      @for (city of citySuggestions; track city) {
+                        <option [value]="city"></option>
+                      }
+                    </datalist>
+                  </app-form-field>
+                </div>
+
+                <!-- Expérience -->
+                <div class="register-page__field-block">
+                  <label class="register-page__input-label">
+                    Niveau d'expérience : <span class="register-page__required" aria-hidden="true">*</span>
+                  </label>
+                  <div class="register-page__radio-pills" role="radiogroup" aria-label="Niveau d'expérience">
+                    @for (exp of ['Aucune', 'Stage(s)', '1 à 3 ans', 'Plus de 3 ans']; track exp) {
+                      <button
+                        type="button"
+                        class="register-page__pill-btn"
+                        [class.register-page__pill-btn--active]="step2Form.get('experience')?.value === exp"
+                        (click)="step2Form.patchValue({ experience: exp }); saveDraft()"
+                        role="radio"
+                        [attr.aria-checked]="step2Form.get('experience')?.value === exp">
+                        {{ exp }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              </form>
+            }
+
+            <!-- ÉTAPE 3 : Votre objectif -->
+            @if (stepIndex() === 2) {
+              <form [formGroup]="step3Form" class="register-page__form-step animate-fade-in">
+                <h3 class="register-page__step-title">Étape 3 : Votre objectif</h3>
+
+                <!-- Skills Tag Input -->
+                <div class="register-page__field-block">
+                  <label class="register-page__input-label">
+                    Compétences clés :
+                  </label>
+                  <div class="register-page__chips-container" aria-label="Liste de vos compétences">
+                    @for (skill of skillsList(); track skill) {
+                      <span class="register-page__chip">
+                        {{ skill }}
+                        <button
+                          type="button"
+                          class="register-page__chip-remove"
+                          (click)="removeSkill(skill)"
+                          [attr.aria-label]="'Supprimer ' + skill">
+                          <app-icon name="close" [size]="14" aria-hidden="true" />
+                        </button>
+                      </span>
+                    }
+                  </div>
+
+                  <!-- Quick suggestions -->
+                  <div class="register-page__suggestions-row">
+                    <span class="register-page__suggestions-label">Suggestions rapides :</span>
+                    @for (sugg of suggestedSkills; track sugg) {
+                      @if (!skillsList().includes(sugg)) {
+                        <button
+                          type="button"
+                          class="register-page__sugg-btn"
+                          (click)="addSkill(sugg)">
+                          + {{ sugg }}
+                        </button>
+                      }
+                    }
+                  </div>
+                </div>
+
+                <!-- Target Role -->
+                <app-form-field
+                  [label]="step1Form.get('profileType')?.value === 'stage' ? 'Sujet ou poste de stage visé' : 'Poste visé'"
+                  [required]="true"
+                  [error]="step3Form.get('targetRole')?.touched && step3Form.get('targetRole')?.invalid ? 'Veuillez préciser le poste recherché.' : ''">
+                  <input
+                    type="text"
+                    formControlName="targetRole"
+                    (blur)="saveDraft()"
+                    placeholder="Ex. Développeur web full-stack"
+                    aria-required="true" />
+                </app-form-field>
+
+                <!-- Conditional Stage duration or Employment contract -->
+                <div class="register-page__form-row">
+                  @if (step1Form.get('profileType')?.value === 'stage') {
+                    <app-form-field label="Durée souhaitée du PFE" [required]="true">
+                      <select formControlName="internshipDuration" (change)="saveDraft()" aria-label="Durée du stage">
+                        <option value="4 mois">4 mois</option>
+                        <option value="5 mois">5 mois</option>
+                        <option value="6 mois">6 mois</option>
+                      </select>
+                    </app-form-field>
+                  } @else {
+                    <app-form-field label="Type de contrat souhaité" [required]="true">
+                      <select formControlName="contractType" (change)="saveDraft()" aria-label="Type de contrat">
+                        <option value="CDI">CDI (Contrat à durée indéterminée)</option>
+                        <option value="CDD">CDD</option>
+                        <option value="Freelance">Freelance / Indépendant</option>
+                      </select>
+                    </app-form-field>
+                  }
+
+                  <app-form-field label="Disponibilité" [required]="true">
+                    <input
+                      type="date"
+                      formControlName="availability"
+                      (change)="saveDraft()"
+                      aria-label="Date de disponibilité" />
+                  </app-form-field>
+                </div>
+
+                <!-- LinkedIn URL (optional) -->
+                <app-form-field
+                  label="Lien LinkedIn (facultatif)"
+                  [error]="step3Form.get('linkedInUrl')?.touched && step3Form.get('linkedInUrl')?.invalid ? 'Veuillez saisir une URL LinkedIn valide.' : ''">
+                  <input
+                    type="url"
+                    formControlName="linkedInUrl"
+                    (blur)="saveDraft()"
+                    placeholder="https://linkedin.com/in/votre-profil" />
+                </app-form-field>
+              </form>
+            }
+
+            <!-- Multi-step Action Navigation -->
+            <div class="register-page__step-actions">
+              @if (stepIndex() > 0) {
+                <app-btn variant="secondary" size="md" icon="arrow_back" (onClick)="prevManualStep()">
+                  Précédent
+                </app-btn>
+              }
+
+              @if (stepIndex() < 2) {
+                <div class="register-page__next-box">
+                  <app-btn
+                    variant="primary"
+                    size="md"
+                    icon="arrow_forward"
+                    [disabled]="stepIndex() === 0 ? !step1Form.valid : !step2Form.valid"
+                    (onClick)="nextManualStep()">
+                    Continuer
+                  </app-btn>
+
+                  @if (stepIndex() === 0 && missingInStep1()) {
+                    <span class="register-page__missing-hint" role="status" aria-live="polite">
+                      Il manque {{ missingInStep1() }}.
+                    </span>
+                  }
+                  @if (stepIndex() === 1 && missingInStep2()) {
+                    <span class="register-page__missing-hint" role="status" aria-live="polite">
+                      Il manque {{ missingInStep2() }}.
+                    </span>
+                  }
+                </div>
+              }
+            </div>
+          </section>
+        }
+
+        <!-- Reassurance block -->
+        <div class="register-page__reassurance">
+          <app-icon name="shield" [size]="20" aria-hidden="true" />
+          <p>{{ reassuranceText() }}</p>
+        </div>
+
+        <!-- Terms checkbox (Required at final step / global) -->
+        <label class="register-page__terms" for="terms-checkbox">
+          <input
+            id="terms-checkbox"
+            type="checkbox"
+            [checked]="termsAccepted()"
+            (change)="termsAccepted.set(!termsAccepted()); saveDraft()" />
+          <span class="register-page__terms-label">
+            J'accepte les <a href="#">conditions d'utilisation</a> et la <a href="#">politique de confidentialité</a>.
+          </span>
+        </label>
+
+        <!-- Final Action Button Area -->
+        <div class="register-page__action-wrapper">
+          <app-btn
+            variant="primary"
+            size="lg"
+            [fullWidth]="true"
+            [icon]="selectedMethod() === 'cv' ? 'cloud_upload' : selectedMethod() === 'linkedin' ? 'linkedin' : 'check'"
+            [disabled]="!canSubmit()"
+            [loading]="loading()"
+            (onClick)="submitRegistration()">
+            {{ selectedMethod() === 'manual' ? 'Créer mon compte' : (selectedMethod() === 'cv' ? 'Continuer avec mon CV' : 'Continuer avec LinkedIn') }}
+          </app-btn>
+
+          @if (!termsAccepted()) {
+            <p class="register-page__helper-text" role="status" aria-live="polite">Cochez la case pour continuer.</p>
+          } @else if (selectedMethod() === 'manual' && stepIndex() === 2 && missingInStep3()) {
+            <p class="register-page__helper-text" role="status" aria-live="polite">Il manque {{ missingInStep3() }}.</p>
+          } @else if (selectedMethod() === 'cv' && !uploadedFile()) {
+            <p class="register-page__helper-text" role="status" aria-live="polite">Veuillez importer votre CV en PDF.</p>
+          }
+        </div>
+
+        <!-- Footer -->
+        <div class="register-page__footer">
+          Déjà un compte ? <a routerLink="/connexion">Se connecter</a>
+        </div>
+      }
+    </div>
+  </div>
+</main>

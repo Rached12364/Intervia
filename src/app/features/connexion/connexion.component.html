@@ -1,0 +1,94 @@
+<app-navbar></app-navbar>
+
+<main class="auth-page">
+  <div class="auth-page__card">
+    <div class="auth-page__header">
+      <div class="auth-page__badge">
+        <app-logo variant="symbol" theme="dark" [size]="24" />
+        <span>Plateforme IA Recrutement</span>
+      </div>
+      <h1 class="auth-page__title">Connexion</h1>
+      <p class="auth-page__subtitle">Accédez à vos simulations RH et rapports d'évaluation</p>
+    </div>
+
+    <div class="auth-page__info-banner">
+      <app-icon name="shield" aria-hidden="true" />
+      <div class="auth-page__info-desc">
+        Vos informations restent sur votre appareil pendant cette démonstration.
+      </div>
+    </div>
+
+    <!-- Rapid Demo Buttons -->
+    <div class="auth-page__demo-section">
+      <span class="auth-page__demo-title">Connexion rapide Démo (1-clic) :</span>
+      <app-btn
+        variant="primary"
+        size="md"
+        icon="person"
+        [fullWidth]="true"
+        (onClick)="loginAsDemoCandidate()">
+        Se connecter en Candidat (Yassine)
+      </app-btn>
+
+      <app-btn
+        variant="secondary"
+        size="md"
+        icon="admin_panel_settings"
+        [fullWidth]="true"
+        (onClick)="loginAsDemoAdmin()">
+        Se connecter en Administrateur
+      </app-btn>
+    </div>
+
+    <div class="auth-page__divider">
+      <span>ou avec votre compte</span>
+    </div>
+
+    @if (errorMessage()) {
+      <div class="auth-page__alert" role="alert">
+        <app-icon name="error_outline" aria-hidden="true" />
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-page__form">
+      <app-form-field
+        label="Adresse Email"
+        [required]="true"
+        [error]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid ? 'Veuillez saisir une adresse email valide' : ''">
+        <input
+          type="email"
+          formControlName="email"
+          placeholder="votre.email@exemple.com"
+          autocomplete="email"
+          aria-required="true" />
+      </app-form-field>
+
+      <app-form-field
+        label="Mot de passe"
+        [required]="true"
+        [error]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid ? 'Le mot de passe est requis (min 6 caractères)' : ''">
+        <input
+          type="password"
+          formControlName="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          aria-required="true" />
+      </app-form-field>
+
+      <app-btn
+        variant="primary"
+        size="lg"
+        type="submit"
+        [fullWidth]="true"
+        [loading]="loading()">
+        Se connecter
+      </app-btn>
+    </form>
+
+    <div class="auth-page__footer">
+      <span>Vous n'avez pas de compte ? </span>
+      <a routerLink="/inscription">S'inscrire gratuitement</a>
+    </div>
+  </div>
+</main>

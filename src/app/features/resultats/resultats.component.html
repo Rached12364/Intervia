@@ -1,0 +1,233 @@
+<app-navbar></app-navbar>
+
+<main class="results-page">
+  <div class="results-page__container">
+    @if (loading()) {
+      <div class="results-page__loading">
+        <app-icon name="sync" class="results-page__spin-icon" aria-hidden="true" />
+        <p>Analyse de votre prestation par l'IA en cours...</p>
+      </div>
+    } @else {
+      @if (currentResult(); as res) {
+      <!-- Header with Summary & Actions -->
+      <div class="results-page__header">
+        <div>
+          <div class="results-page__tag">
+            <app-icon name="verified" aria-hidden="true" />
+            <span>Rapport d'Évaluation IA Validé</span>
+          </div>
+          <h1>Synthèse de Votre Simulation</h1>
+          <p class="text-secondary">
+            Session du {{ res.date | date:'dd MMMM yyyy à HH:mm' }} •
+            {{ res.globalScore >= 80 ? 'Excellente prestation, vous êtes prêt pour vos entretiens !' : 'Bonne performance, quelques réglages recommandés.' }}
+          </p>
+        </div>
+
+        <div class="results-page__header-actions">
+          <app-btn variant="ghost" size="md" icon="auto_awesome" routerLink="/preparation">
+            Préparer une offre
+          </app-btn>
+          <app-btn variant="secondary" size="md" icon="replay" (onClick)="retrySimulation()">
+            Refaire une Simulation
+          </app-btn>
+          <app-btn variant="primary" size="md" icon="dashboard" (onClick)="goToDashboard()">
+            Tableau de Bord
+          </app-btn>
+        </div>
+      </div>
+
+      <!-- Reassuring Info Banner -->
+      <div class="results-page__info-banner">
+        <app-icon name="psychology" aria-hidden="true" />
+        <div>
+          <div class="results-page__info-desc">Voici des pistes concrètes pour progresser, à votre rythme.</div>
+        </div>
+      </div>
+
+      <!-- Main Overview Card: Big Score & Detail Bars -->
+      <div class="results-page__overview-grid">
+        <!-- Big Score Card -->
+        <div class="results-page__score-card">
+          <div class="results-page__score-badge-wrapper">
+            <app-score-badge [level]="res.badge || 'or'" [score]="res.globalScore"></app-score-badge>
+          </div>
+          <div class="results-page__big-score">
+            <span class="results-page__score-number">{{ res.globalScore }}</span>
+            <span class="results-page__score-max">/ 100</span>
+          </div>
+          <div class="results-page__score-status">
+            {{ res.globalScore >= 85 ? 'Score Excellent — Badge Or Attribué' : (res.globalScore >= 70 ? 'Très Bon Niveau — Badge Argent Attribué' : 'Niveau Encourageant — Badge Bronze Attribué') }}
+          </div>
+          <p class="text-xs text-secondary">
+            Ce score reflète votre aisance verbale, votre langage corporel et la pertinence de votre argumentation.
+          </p>
+        </div>
+
+        <!-- Skill Bars Breakdown -->
+        <div class="results-page__breakdown-card">
+          <h2>Évaluation Détaillée par Compétence</h2>
+          <div class="results-page__skills-list">
+            @for (score of res.scores; track score.label) {
+              <div class="results-page__skill-item">
+                <div class="results-page__skill-header">
+                  <div class="results-page__skill-title">
+                    <app-icon [name]="score.icon" aria-hidden="true" />
+                    <span>{{ score.label }}</span>
+                  </div>
+                  <span class="results-page__skill-val">{{ score.score }}%</span>
+                </div>
+                <div class="results-page__bar-track" role="progressbar" [attr.aria-valuenow]="score.score" aria-valuemin="0" aria-valuemax="100">
+                  <div
+                    class="results-page__bar-fill"
+                    [class.results-page__bar-fill--high]="score.score >= 85"
+                    [class.results-page__bar-fill--medium]="score.score < 85 && score.score >= 70"
+                    [class.results-page__bar-fill--low]="score.score < 70"
+                    [style.width.%]="score.score">
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- AI 4 Cards Analysis -->
+      <section class="results-page__section">
+        <h2 class="results-page__section-title">
+          <app-icon name="psychology" aria-hidden="true" />
+          Diagnostic Intelligent de l'IA (4 Piliers)
+        </h2>
+
+        <div class="results-page__ai-grid">
+          <!-- Pillar 1: Langage -->
+          <div class="results-page__ai-card">
+            <div class="results-page__ai-header">
+              <app-icon name="record_voice_over" aria-hidden="true" />
+              <div>
+                <h3>Vocabulaire &amp; Langage</h3>
+                <span class="results-page__pill results-page__pill--{{ res.aiAnalysis.langage.level }}">
+                  {{ res.aiAnalysis.langage.level | uppercase }} ({{ res.aiAnalysis.langage.score }}%)
+                </span>
+              </div>
+            </div>
+            <p>{{ res.aiAnalysis.langage.feedback }}</p>
+          </div>
+
+          <!-- Pillar 2: Posture -->
+          <div class="results-page__ai-card">
+            <div class="results-page__ai-header">
+              <app-icon name="videocam" aria-hidden="true" />
+              <div>
+                <h3>Posture &amp; Contact Visuel</h3>
+                <span class="results-page__pill results-page__pill--{{ res.aiAnalysis.posture.level }}">
+                  {{ res.aiAnalysis.posture.level | uppercase }} ({{ res.aiAnalysis.posture.score }}%)
+                </span>
+              </div>
+            </div>
+            <p>{{ res.aiAnalysis.posture.feedback }}</p>
+          </div>
+
+          <!-- Pillar 3: Stress -->
+          <div class="results-page__ai-card">
+            <div class="results-page__ai-header">
+              <app-icon name="self_improvement" aria-hidden="true" />
+              <div>
+                <h3>Gestion du Stress &amp; Débit</h3>
+                <span class="results-page__pill results-page__pill--{{ res.aiAnalysis.stress.level }}">
+                  {{ res.aiAnalysis.stress.level | uppercase }} ({{ res.aiAnalysis.stress.score }}%)
+                </span>
+              </div>
+            </div>
+            <p>{{ res.aiAnalysis.stress.feedback }}</p>
+          </div>
+
+          <!-- Pillar 4: Clarté -->
+          <div class="results-page__ai-card">
+            <div class="results-page__ai-header">
+              <app-icon name="auto_awesome" aria-hidden="true" />
+              <div>
+                <h3>Clarté &amp; Structure Synthétique</h3>
+                <span class="results-page__pill results-page__pill--{{ res.aiAnalysis.clarte.level }}">
+                  {{ res.aiAnalysis.clarte.level | uppercase }} ({{ res.aiAnalysis.clarte.score }}%)
+                </span>
+              </div>
+            </div>
+            <p>{{ res.aiAnalysis.clarte.feedback }}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Actionable Suggestions List -->
+      <section class="results-page__section">
+        <h2 class="results-page__section-title">
+          <app-icon name="checklist" aria-hidden="true" />
+          Pistes d'Amélioration Recommandées
+        </h2>
+
+        <div class="results-page__suggestions-card">
+          <ul class="results-page__suggestions-list">
+            @for (sug of res.suggestions; track sug; let idx = $index) {
+              <li class="results-page__suggestion-item">
+                <span class="results-page__suggestion-num">{{ idx + 1 }}</span>
+                <span class="results-page__suggestion-text">{{ sug }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+      </section>
+
+      <!-- Historical Progress & Trend -->
+      <section class="results-page__section">
+        <h2 class="results-page__section-title">
+          <app-icon name="timeline" aria-hidden="true" />
+          Historique de Vos Simulations
+        </h2>
+
+        <div class="results-page__history-card">
+          <div class="results-page__history-selector">
+            @for (historyItem of allResults(); track historyItem.id) {
+              <div
+                class="results-page__history-item"
+                [class.results-page__history-item--active]="currentResult()?.id === historyItem.id"
+                (click)="selectResult(historyItem)"
+                role="button"
+                tabindex="0"
+                (keydown.enter)="selectResult(historyItem)"
+                (keydown.space)="selectResult(historyItem); $event.preventDefault()"
+                [attr.aria-label]="'Consulter la session du ' + (historyItem.date | date:'dd/MM/yyyy')">
+                <div class="results-page__history-date">
+                  {{ historyItem.date | date:'dd/MM/yyyy' }}
+                </div>
+                <div class="results-page__history-score">
+                  {{ historyItem.globalScore }}%
+                </div>
+                <span class="results-page__history-badge">{{ historyItem.badge || 'bronze' }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Trend Chart SVG -->
+          <div class="results-page__chart-container">
+            <div class="results-page__chart-title">Évolution du Score Global au fil des sessions</div>
+            <div class="results-page__chart-wrapper">
+              <svg class="results-page__chart-svg" viewBox="0 0 500 120" preserveAspectRatio="none">
+                <line x1="0" y1="20" x2="500" y2="20" class="results-page__chart-gridline" />
+                <line x1="0" y1="60" x2="500" y2="60" class="results-page__chart-gridline" />
+                <line x1="0" y1="100" x2="500" y2="100" class="results-page__chart-gridline" />
+                <!-- Trend line through scores -->
+                <polyline
+                  points="50,65 200,50 350,30 450,25"
+                  class="results-page__chart-line" />
+                <circle cx="50" cy="65" r="5" class="results-page__chart-point" />
+                <circle cx="200" cy="50" r="5" class="results-page__chart-point" />
+                <circle cx="350" cy="30" r="5" class="results-page__chart-point" />
+                <circle cx="450" cy="25" r="5" class="results-page__chart-point" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+      }
+    }
+  </div>
+</main>

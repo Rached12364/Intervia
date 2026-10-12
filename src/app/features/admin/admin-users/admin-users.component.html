@@ -1,0 +1,67 @@
+<div class="admin-dashboard-page">
+  <div class="admin-dashboard-page__header">
+    <div>
+      <h1>Gestion des Utilisateurs</h1>
+      <p class="text-secondary">Consultez, recherchez et activez ou désactivez les comptes des candidats</p>
+    </div>
+  </div>
+
+  <div class="admin-page__card">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-md); flex-wrap: wrap;">
+          <input
+            type="search"
+            placeholder="Rechercher par nom ou email..."
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+            style="padding: var(--space-xs) var(--space-md); border: 1px solid var(--color-border); border-radius: var(--radius-md); width: 300px;"
+            aria-label="Rechercher un utilisateur" />
+          <div class="text-xs text-secondary">{{ filteredUsers().length }} utilisateurs trouvés</div>
+        </div>
+
+        <table class="admin-page__table" aria-label="Tableau de gestion des utilisateurs">
+          <thead>
+            <tr>
+              <th>Candidat</th>
+              <th>Objectif</th>
+              <th>Simulations</th>
+              <th>Score Moyen</th>
+              <th>Inscrit le</th>
+              <th>Statut</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (user of filteredUsers(); track user.id) {
+              <tr>
+                <td>
+                  <div class="font-semibold">{{ user.name }}</div>
+                  <div class="text-xs text-secondary">{{ user.email }}</div>
+                </td>
+                <td>
+                  <span class="admin-page__pill admin-page__pill--{{ user.profileType }}">
+                    {{ user.profileType === 'stage' ? 'Stage' : 'Emploi' }}
+                  </span>
+                </td>
+                <td>{{ user.simulationsCount }}</td>
+                <td><strong>{{ user.averageScore }}%</strong></td>
+                <td>{{ user.registeredDate }}</td>
+                <td>
+                  <span class="admin-page__status-badge" [class.admin-page__status-badge--active]="user.active">
+                    {{ user.active ? 'Actif' : 'Désactivé' }}
+                  </span>
+                </td>
+                <td>
+                  <app-btn
+                    [variant]="user.active ? 'ghost' : 'secondary'"
+                    size="sm"
+                    [icon]="user.active ? 'block' : 'check_circle'"
+                    (onClick)="toggleStatus(user)">
+                    {{ user.active ? 'Désactiver' : 'Activer' }}
+                  </app-btn>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+</div>

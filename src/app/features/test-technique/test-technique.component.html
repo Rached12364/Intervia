@@ -1,0 +1,163 @@
+<app-navbar></app-navbar>
+
+<main class="test-page">
+  <div class="test-page__container">
+    @if (!completed()) {
+      <!-- Header -->
+      <div class="test-page__header">
+        <div>
+          <div class="test-page__tag">
+            <app-icon name="code" aria-hidden="true" />
+            <span>Épreuve Technique / Défi de Code</span>
+          </div>
+          <h1>{{ exerciseTitle() }}</h1>
+          <p class="text-secondary">Langage : {{ exerciseLanguage() }} • Temps conseillé : {{ timeLimitMinutes() }} minutes • Clarté et lisibilité prioritaires</p>
+        </div>
+
+        <div class="test-page__timer-wrapper">
+          <app-timer [seconds]="timeLimitMinutes() * 60"></app-timer>
+        </div>
+      </div>
+
+      <!-- Main Workspace: Problem Statement on Left, Editor + Console on Right -->
+      <div class="test-page__workspace">
+        <!-- Left: Instructions & Examples -->
+        <div class="test-page__problem-panel">
+          <div class="test-page__panel-title">
+            <app-icon name="description" aria-hidden="true" />
+            Énoncé &amp; Contraintes
+          </div>
+
+          <div class="test-page__instructions">
+            <p>
+              Dans le cadre du scoring automatique des entretiens chez <strong>IntervIA</strong>, concevez une fonction qui prend en entrée un tableau de scores (de 0 à 100) et retourne un objet partitionné :
+            </p>
+
+            <ul class="test-page__rules">
+              <li><strong>Or :</strong> score supérieur ou égal à 85%</li>
+              <li><strong>Argent :</strong> score entre 70% et 84%</li>
+              <li><strong>Bronze :</strong> score entre 50% et 69%</li>
+              <li>Les scores strictement inférieurs à 50% ne sont attribués à aucun palier.</li>
+            </ul>
+
+            <div class="test-page__tip-box">
+              <app-icon name="lightbulb" aria-hidden="true" />
+              <div>
+                <strong>Conseil bienveillant :</strong> Ne cherchez pas la complexité prématurée. Un code lisible et robuste avec une complexité linéaire <code>O(n)</code> est parfait.
+              </div>
+            </div>
+
+            <div class="test-page__example-box">
+              <div class="test-page__example-title">Exemple d'entrée :</div>
+              <pre class="test-page__code-sample">[92, 74, 55, 88, 62]</pre>
+              <div class="test-page__example-title">Sortie attendue :</div>
+              <pre class="test-page__code-sample">&#123; or: [92, 88], argent: [74], bronze: [55, 62] &#125;</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Code Editor & Console -->
+        <div class="test-page__editor-panel">
+          <div class="test-page__editor-header">
+            <div class="test-page__file-tab">
+              <app-icon name="javascript" aria-hidden="true" />
+              solution.ts
+            </div>
+            <div class="test-page__editor-actions">
+              <app-btn variant="ghost" size="sm" icon="restart_alt" (onClick)="resetCode()">
+                Réinitialiser
+              </app-btn>
+            </div>
+          </div>
+
+          <!-- Code Textarea -->
+          <div class="test-page__editor-container">
+            <textarea
+              class="test-page__editor"
+              [(ngModel)]="userCode"
+              spellcheck="false"
+              aria-label="Zone de saisie de votre code TypeScript">
+            </textarea>
+          </div>
+
+          <!-- Test Actions Bar -->
+          <div class="test-page__action-bar">
+            <app-btn
+              variant="secondary"
+              size="md"
+              icon="play_arrow"
+              [loading]="runningTests()"
+              (onClick)="runTests()">
+              Exécuter les Tests Unitaires
+            </app-btn>
+
+            <app-btn
+              variant="primary"
+              size="md"
+              icon="check"
+              [disabled]="!testsPassed()"
+              (onClick)="submitSolution()">
+              Valider &amp; Soumettre ma Solution
+            </app-btn>
+          </div>
+
+          <!-- Console & Test Results Panel -->
+          <div class="test-page__console">
+            <div class="test-page__console-header">
+              <app-icon name="terminal" aria-hidden="true" />
+              <span>Console d'Exécution &amp; Jeux d'Essai</span>
+            </div>
+
+            <div class="test-page__console-body">
+              @if (consoleLogs().length === 0) {
+                <div class="test-page__console-placeholder">
+                  Cliquez sur "Exécuter les Tests Unitaires" pour lancer la validation automatique de votre code.
+                </div>
+              } @else {
+                <div class="test-page__log-list">
+                  @for (log of consoleLogs(); track log) {
+                    <div
+                      class="test-page__log-line"
+                      [class.test-page__log-line--success]="log.startsWith('[PASS]') || log.startsWith('[SUCCÈS]')"
+                      [class.test-page__log-line--failure]="log.startsWith('[FAIL]')"
+                      [class.test-page__log-line--tip]="log.startsWith('[CONSEIL')">
+                      {{ log }}
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    } @else {
+      <!-- Completion Success Screen -->
+      <div class="test-page__success-card">
+        <app-icon name="task_alt" class="test-page__success-icon" aria-hidden="true" />
+        <h2>Test Technique Validé avec Succès !</h2>
+        <p class="text-secondary">
+          Félicitations, l'ensemble des cas d'essais a été passé avec une efficacité mémoire remarquable.
+        </p>
+
+        <div class="test-page__score-wrapper">
+          <app-score-badge level="or" [score]="score()"></app-score-badge>
+        </div>
+
+        <div class="test-page__success-actions">
+          <app-btn variant="secondary" size="md" icon="restart_alt" (onClick)="completed.set(false)">
+            Consulter ma Solution
+          </app-btn>
+          @if (prepPlanId()) {
+            <app-btn variant="primary" size="md" icon="arrow_forward" (onClick)="goToDashboard()">
+              Retourner à mon parcours
+            </app-btn>
+          } @else {
+            <app-btn variant="primary" size="md" icon="dashboard" (onClick)="goToDashboard()">
+              Retour au Tableau de Bord
+            </app-btn>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</main>

@@ -1,0 +1,42 @@
+.timer {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  transition: all var(--transition-fast);
+
+  &__icon {
+    font-size: 18px;
+    color: var(--color-text-secondary);
+  }
+
+  &--warning {
+    border-color: var(--color-warning);
+    color: var(--color-warning);
+
+    .timer__icon {
+      color: var(--color-warning);
+    }
+  }
+
+  &--danger {
+    border-color: var(--color-error);
+    color: var(--color-error);
+    animation: pulse 1s ease infinite;
+
+    .timer__icon {
+      color: var(--color-error);
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}

@@ -1,0 +1,128 @@
+<app-focus-layout
+  [title]="selectedCategory() ? 'QCM — ' + selectedCategory()?.name : 'Choix du QCM'"
+  [showProgress]="state() === 'quiz'"
+  [progressCurrent]="currentIndex() + 1"
+  [progressTotal]="questions().length"
+  (onQuit)="quit()">
+
+  <div class="qcm-page">
+    <!-- State 1: Category Select -->
+    @if (state() === 'category-select') {
+      <div class="qcm-page__intro">
+        <h2>Sélectionnez un Domaine de Quiz QCM</h2>
+        <p class="text-secondary">Chaque session comporte 5 questions ciblées pour évaluer vos connaissances fondamentales.</p>
+
+        <div class="qcm-page__category-grid">
+          @for (cat of categories(); track cat.id) {
+            <div class="qcm-page__category-card"
+                 (click)="selectCategory(cat)"
+                 role="button"
+                 tabindex="0"
+                 (keydown.enter)="selectCategory(cat)"
+                 (keydown.space)="selectCategory(cat); $event.preventDefault()"
+                 [attr.aria-label]="'Commencer le quiz ' + cat.name">
+              <app-icon [name]="cat.icon" aria-hidden="true" />
+              <div>
+                <h3>{{ cat.name }}</h3>
+                <p>{{ cat.description }}</p>
+                <div class="qcm-page__category-meta">
+                  {{ cat.count }} questions • Entraînement rapide
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- State 2: Quiz Mode -->
+    @if (state() === 'quiz') {
+      @if (questions()[currentIndex()]; as q) {
+        <div class="qcm-page__question-container">
+          <div class="qcm-page__question-header">
+            <span class="qcm-page__question-counter">
+              Question {{ currentIndex() + 1 }} / {{ questions().length }}
+            </span>
+            <app-timer [seconds]="q.timeLimit" [resetKey]="timerResetKey()" (onTimeout)="confirmAnswer()"></app-timer>
+          </div>
+
+          <h2 class="qcm-page__question-title">{{ q.text }}</h2>
+
+          <div class="qcm-page__options-list">
+            @for (opt of q.options; track opt.id) {
+              <div
+                class="qcm-page__option-item"
+                [class.qcm-page__option-item--selected]="selectedOptionId() === opt.id"
+                (click)="selectOption(opt.id)"
+                role="button"
+                tabindex="0"
+                (keydown.enter)="selectOption(opt.id)"
+                (keydown.space)="selectOption(opt.id); $event.preventDefault()"
+                [attr.aria-label]="opt.text"
+                [attr.aria-pressed]="selectedOptionId() === opt.id">
+                <div class="qcm-page__option-radio">
+                  @if (selectedOptionId() === opt.id) {
+                    <app-icon name="check" [size]="16" aria-hidden="true" />
+                  }
+                </div>
+                <div class="qcm-page__option-text">{{ opt.text }}</div>
+              </div>
+            }
+          </div>
+
+          <div class="qcm-page__question-footer">
+            <app-btn
+              variant="primary"
+              size="lg"
+              [disabled]="!selectedOptionId()"
+              icon="arrow_forward"
+              (onClick)="confirmAnswer()">
+              {{ currentIndex() === questions().length - 1 ? 'Valider mes réponses' : 'Question suivante' }}
+            </app-btn>
+          </div>
+        </div>
+      }
+    }
+
+    <!-- State 3: Summary & Review -->
+    @if (state() === 'summary') {
+      <div class="qcm-page__summary-wrapper">
+        <div class="qcm-page__result-summary">
+          <h2>Résultats de votre QCM</h2>
+          <p class="text-secondary qcm-page__result-category">{{ selectedCategory()?.name }}</p>
+
+          <app-score-badge [level]="badgeLevel()" [score]="scorePercentage()"></app-score-badge>
+
+          <div class="qcm-page__result-actions">
+            @if (prepPlanId()) {
+              <app-btn variant="secondary" size="md" icon="replay" (onClick)="resetQuiz()">Recommencer ce QCM</app-btn>
+              <app-btn variant="primary" size="md" icon="arrow_forward" (onClick)="quit()">Retourner à mon parcours</app-btn>
+            } @else {
+              <app-btn variant="secondary" size="md" icon="replay" (onClick)="resetQuiz()">Recommencer un QCM</app-btn>
+              <app-btn variant="primary" size="md" icon="dashboard" (onClick)="quit()">Retour au Tableau de Bord</app-btn>
+            }
+          </div>
+        </div>
+
+        <h3 class="qcm-page__review-heading">Correction Détaillée des Questions</h3>
+
+        @for (q of questions(); track q.id; let i = $index) {
+          <div
+            class="qcm-page__review-item"
+            [class.qcm-page__review-item--correct]="isAnswerCorrect(q)"
+            [class.qcm-page__review-item--incorrect]="!isAnswerCorrect(q)">
+            <div class="font-semibold qcm-page__review-question">{{ i + 1 }}. {{ q.text }}</div>
+
+            <div class="qcm-page__review-correct-answer">
+              <app-icon name="check_circle" [size]="16" aria-hidden="true" /> Réponse correcte : {{ getCorrectOptionText(q) }}
+            </div>
+
+            <div class="qcm-page__explanation-box">
+              <app-icon name="lightbulb" [size]="16" aria-hidden="true" /> <strong>Explication pédagogique :</strong> {{ q.explanation }}
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</app-focus-layout>

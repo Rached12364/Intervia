@@ -1,0 +1,66 @@
+<div class="admin-dashboard-page">
+  <div class="admin-dashboard-page__header">
+    <div>
+      <h1>Modération &amp; Validation de Contenu</h1>
+      <p class="text-secondary">Validez ou rejetez les questions d'entretien et les offres soumises</p>
+    </div>
+  </div>
+
+      @if (feedbackMessage()) {
+        <div class="admin-page__status-badge admin-page__status-badge--active" role="status">
+          {{ feedbackMessage() }}
+        </div>
+      }
+
+      <div class="admin-page__card">
+        <table class="admin-page__table" aria-label="Tableau de modération de contenu">
+          <thead>
+            <tr>
+              <th>Titre &amp; Catégorie</th>
+              <th>Type</th>
+              <th>Auteur</th>
+              <th>Date de soumission</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of contentItems(); track item.id) {
+              <tr>
+                <td>
+                  <div class="font-semibold">{{ item.title }}</div>
+                  <div class="text-xs text-secondary">{{ item.category }}</div>
+                </td>
+                <td>
+                  <span class="admin-page__pill admin-page__pill--{{ item.type === 'question' ? 'emploi' : 'stage' }}">
+                    {{ item.type === 'question' ? 'Question IA' : 'Offre Partenaire' }}
+                  </span>
+                </td>
+                <td>{{ item.author }}</td>
+                <td>{{ item.submittedDate }}</td>
+                <td>
+                  <span class="admin-page__status-badge"
+                        [class.admin-page__status-badge--active]="item.status === 'valide'">
+                    {{ item.status === 'valide' ? 'Validé' : (item.status === 'rejete' ? 'Rejeté' : 'En attente') }}
+                  </span>
+                </td>
+                <td>
+                  @if (item.status === 'en_attente') {
+                    <div style="display: flex; gap: var(--space-xs);">
+                      <app-btn variant="primary" size="sm" icon="check" (onClick)="approve(item)">
+                        Valider
+                      </app-btn>
+                      <app-btn variant="ghost" size="sm" icon="close" (onClick)="reject(item)">
+                        Refuser
+                      </app-btn>
+                    </div>
+                  } @else {
+                    <span class="text-xs text-secondary">Traité</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+</div>
