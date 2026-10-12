@@ -9,6 +9,11 @@ export const adminGuard: CanActivateFn = () => {
   if (authService.isAdmin()) {
     return true;
   }
+
+  if (!authService.isAuthenticated()) {
+    router.navigate(['/connexion']);
+    return false;
+  }
   
   // Redirection bienveillante pour les candidats
   router.navigate(['/dashboard'], { queryParams: { error: 'unauthorized_admin' } });

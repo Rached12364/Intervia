@@ -1,4 +1,5 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { Observable, of, delay, throwError } from 'rxjs';
 import { User, LoginCredentials } from '../models/user.model';
 
@@ -29,6 +30,7 @@ const DEMO_USERS: User[] = [
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private router = inject(Router);
   private currentUser = signal<User | null>(null);
   
   readonly user = this.currentUser.asReadonly();
@@ -50,6 +52,7 @@ export class AuthService {
 
   logout(): void {
     this.currentUser.set(null);
+    this.router.navigate(['/connexion']);
   }
 
   private registrationDraft: any = null;
