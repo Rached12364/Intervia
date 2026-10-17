@@ -242,21 +242,10 @@ export class AmeliorerCvComponent implements OnInit {
   }
 
   private tryReadPdfOrFallback(file: File): void {
-    // Attempt dynamic import if available, else display user-friendly prompt
-    try {
-      // Dynamic import to avoid loading heavy pdf bundle initially
-      import('pdfjs-dist' as string).then(
-        () => {
-          // If library is loaded, could parse pages
-          this.fileError.set('Nous n\'arrivons pas à lire le texte de ce fichier. Essayez de coller le contenu de votre CV à la place.');
-        },
-        () => {
-          this.fileError.set('Nous n\'arrivons pas à lire le texte de ce fichier. Essayez de coller le contenu de votre CV à la place.');
-        }
-      );
-    } catch {
-      this.fileError.set('Nous n\'arrivons pas à lire le texte de ce fichier. Essayez de coller le contenu de votre CV à la place.');
-    }
+    this.uploadedFile.set(file);
+    // Dans cette version sans bibliothèque PDF tierce lourde, inviter avec bienveillance à coller le texte
+    this.fileError.set('Nous n\'arrivons pas à extraire directement le texte de ce fichier PDF. Vous pouvez coller le contenu de votre CV dans l\'onglet "Coller mon CV".');
+    this.cvInputMethod.set('paste');
   }
 
   removeUploadedFile(): void {
