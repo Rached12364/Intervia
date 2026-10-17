@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+﻿import { Injectable, signal } from '@angular/core';
 import { Observable, of, delay } from 'rxjs';
 
 export interface AdminUser {
@@ -39,8 +39,8 @@ export class AdminService {
   private users = signal<AdminUser[]>([
     {
       id: 'usr-1',
-      name: 'Yassine Ben Ali',
-      email: 'yassine@intervia.tn',
+      name: 'Mohamed Ben Ali',
+      email: 'mohamed@intervia.tn',
       role: 'candidat',
       profileType: 'emploi',
       simulationsCount: 4,
@@ -153,3 +153,4 @@ export class AdminService {
     return of(true).pipe(delay(300));
   }
 }
+

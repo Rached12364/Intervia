@@ -1,0 +1,53 @@
+<div
+  #container
+  class="floating-symbols-container"
+  [class.floating-symbols-container--reduced]="reducedMotion || !isPlaying"
+  [class.floating-symbols-container--breathing]="isBreathingActive"
+  [class.floating-symbols-container--warm]="stressLevel >= 7"
+  [class.floating-symbols-container--cool]="stressLevel < 4"
+  (mousemove)="onMouseMove($event)"
+  (mouseleave)="onMouseLeave()"
+  aria-hidden="true">
+
+  <!-- Liste des symboles flottants -->
+  @for (s of symbols(); track s.id) {
+    <div
+      class="floating-symbol"
+      [class.floating-symbol--burst]="s.bursting"
+      [style.width.px]="s.size"
+      [style.height.px]="s.size"
+      [style.opacity]="s.bursting ? 0 : s.baseOpacity"
+      [style.transform]="'translate3d(' + s.x + 'px, ' + s.y + 'px, 0)'"
+      (click)="onSymbolClick(s, $event)">
+
+      @if (s.isLogoSymbol) {
+        <svg
+          viewBox="0 0 100 100"
+          [attr.width]="s.size"
+          [attr.height]="s.size"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="logo-symbol-svg">
+          <circle cx="50" cy="50" r="42" />
+          <path d="M 32 52 L 46 64 L 70 36" />
+        </svg>
+      } @else {
+        <app-icon [name]="s.icon" [size]="s.size" aria-hidden="true" />
+      }
+    </div>
+  }
+
+  <!-- Étiquettes apparaissant lors du clic sur un symbole (1,5 s) -->
+  @for (label of activeLabels(); track label.id) {
+    <div
+      class="floating-label animate-label-pop"
+      [style.left.px]="label.x"
+      [style.top.px]="label.y">
+      <span>{{ label.text }}</span>
+    </div>
+  }
+
+</div>

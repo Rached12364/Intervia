@@ -13,8 +13,8 @@ import { LogoComponent } from '../logo/logo.component';
   template: `
     <nav class="navbar" role="navigation" aria-label="Navigation principale">
       <div class="navbar__inner">
-        <a class="navbar__logo" routerLink="/dashboard" id="nav-logo">
-          <app-logo variant="full" theme="dark" [size]="28" />
+        <a class="navbar__logo" [routerLink]="logoLink" id="nav-logo">
+          <app-logo variant="full" theme="dark" [size]="52" loading="eager" />
         </a>
 
         @if (auth.isAuthenticated()) {
@@ -61,6 +61,12 @@ import { LogoComponent } from '../logo/logo.component';
                 <span>Résultats</span>
               </a>
             </li>
+            <li>
+              <a class="navbar__link" routerLink="/ameliorer-cv" routerLinkActive="navbar__link--active" id="nav-ameliorer-cv">
+                <app-icon name="description" aria-hidden="true" />
+                <span>Améliorer mon CV</span>
+              </a>
+            </li>
           </ul>
 
           <div class="navbar__user">
@@ -91,6 +97,12 @@ import { LogoComponent } from '../logo/logo.component';
 })
 export class NavbarComponent {
   auth = inject(AuthService);
+
+  get logoLink(): string {
+    if (this.auth.isAdmin()) return '/admin';
+    if (this.auth.isAuthenticated()) return '/dashboard';
+    return '/';
+  }
 
   logout(): void {
     this.auth.logout();

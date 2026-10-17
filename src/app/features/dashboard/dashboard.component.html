@@ -3,7 +3,7 @@
 <main class="dashboard-page">
   <div class="dashboard-page__container">
     @if (adminWarning()) {
-      <div class="dashboard-page__alert animate-fade-in" role="status" style="margin-bottom: var(--space-lg); padding: 12px 16px; background-color: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; border-radius: var(--radius-md); display: flex; align-items: center; gap: 10px; font-size: var(--font-size-sm); font-weight: 500;">
+      <div class="dashboard-page__alert animate-fade-in" role="status" style="margin-bottom: var(--space-lg); padding: 12px 16px; background-color: var(--color-warning-light); color: var(--color-warning); border: 1px solid var(--color-warning); border-radius: var(--radius-md); display: flex; align-items: center; gap: 10px; font-size: var(--font-size-sm); font-weight: 500;">
         <app-icon name="info" [size]="20" aria-hidden="true" />
         <span>Cet espace est réservé aux administrateurs.</span>
       </div>
@@ -11,7 +11,7 @@
 
     <!-- Welcome Header -->
     <header class="dashboard-page__welcome">
-      <h1>Bonjour {{ userName() || 'Yassine' }}</h1>
+      <h1>Bonjour {{ userName() || 'Mohamed' }}</h1>
       <p>Prêt pour perfectionner votre prestation d'entretien aujourd'hui ? Prenez votre temps, l'IA s'adapte à votre rythme.</p>
     </header>
 
@@ -19,8 +19,8 @@
       <!-- Left Main Column -->
       <div class="dashboard-page__left">
         <!-- Featured Preparation Card -->
-        <div class="dashboard-page__featured-card" style="margin-bottom: var(--space-xl); background: linear-gradient(135deg, #FFF9FA 0%, #FDF3F5 100%); border-color: #F0D5DC;">
-          <div class="dashboard-page__badge-tag" style="background-color: var(--color-primary); color: #fff;">
+        <div class="dashboard-page__featured-card" style="margin-bottom: var(--space-xl); background: linear-gradient(135deg, var(--color-bg) 0%, var(--color-tint-light) 100%); border: 1px solid var(--color-border);">
+          <div class="dashboard-page__badge-tag" style="background-color: var(--color-primary); color: var(--color-surface);">
             <app-icon name="auto_awesome" aria-hidden="true" />
             <span>Nouveau · Parcours sur mesure</span>
           </div>
@@ -131,6 +131,16 @@
               <h3>Test Technique Code</h3>
               <p>Résolvez des exercices de code en situation réelle avec console de test</p>
             </a>
+
+            <a class="dashboard-page__hub-item"
+               routerLink="/ameliorer-cv"
+               role="link"
+               tabindex="0"
+               aria-label="Accéder à l'outil d'amélioration de CV et profil LinkedIn">
+              <app-icon name="description" aria-hidden="true" />
+              <h3>Améliorer mon CV</h3>
+              <p>Analysez votre CV ou profil LinkedIn et obtenez une version optimisée par l'IA</p>
+            </a>
           </div>
         </section>
       </div>
@@ -173,3 +183,4 @@
     </div>
   </div>
 </main>
+

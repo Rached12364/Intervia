@@ -47,7 +47,7 @@
 
   // Featured Simulation Card
   &__featured-card {
-    background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+    background: var(--gradient-brand);
     color: #ffffff;
     border-radius: var(--radius-xl);
     padding: var(--space-xl);

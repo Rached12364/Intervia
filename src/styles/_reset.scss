@@ -55,7 +55,7 @@ ul, ol {
 
 // Accessibility: visible focus styles
 :focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 3px solid var(--color-accent);
   outline-offset: 2px;
 }
 

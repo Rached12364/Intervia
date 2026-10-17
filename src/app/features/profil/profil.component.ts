@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+﻿import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
@@ -46,9 +46,9 @@ export class ProfilComponent implements OnInit {
 
   ngOnInit(): void {
     const user = this.authService.user() || {
-      firstName: 'Yassine',
+      firstName: 'Mohamed',
       lastName: 'Ben Ali',
-      email: 'yassine@intervia.tn',
+      email: 'mohamed@intervia.tn',
       phone: '+216 55 123 456',
       domain: 'Développement Web',
       profileType: 'emploi'
@@ -88,3 +88,4 @@ export class ProfilComponent implements OnInit {
     }, 5000);
   }
 }
+

@@ -6,6 +6,7 @@ import { NavbarComponent } from '../../shared/components/navbar/navbar.component
 import { ScoreBadgeComponent } from '../../shared/components/score-badge/score-badge.component';
 import { BtnComponent } from '../../shared/components/btn/btn.component';
 import { IconComponent } from '../../shared/components/icon/icon.component';
+import { IaAvatarComponent } from '../../shared/components/ia-avatar/ia-avatar.component';
 import { SimulationResult } from '../../core/models/result.model';
 
 @Component({
@@ -17,7 +18,8 @@ import { SimulationResult } from '../../core/models/result.model';
     NavbarComponent,
     ScoreBadgeComponent,
     BtnComponent,
-    IconComponent
+    IconComponent,
+    IaAvatarComponent
   ],
   templateUrl: './resultats.component.html',
   styleUrl: './resultats.component.scss'

@@ -1,0 +1,197 @@
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  background-color: var(--color-navy);
+
+  &__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+
+    &--visible {
+      opacity: 1;
+    }
+  }
+
+  &__mesh {
+    position: absolute;
+    inset: -20%;
+    width: 140%;
+    height: 140%;
+    filter: blur(60px);
+    opacity: 0.85;
+    pointer-events: none;
+    transition: opacity var(--transition-slow);
+  }
+
+  &__blob {
+    position: absolute;
+    border-radius: var(--radius-full);
+    mix-blend-mode: screen;
+    will-change: transform;
+
+    &--1 {
+      width: 60%;
+      height: 60%;
+      top: 10%;
+      left: 10%;
+      background: radial-gradient(circle, var(--color-primary) 0%, transparent 70%);
+      animation: floatBlob1 18s ease-in-out infinite alternate;
+    }
+
+    &--2 {
+      width: 55%;
+      height: 55%;
+      bottom: 10%;
+      right: 10%;
+      background: radial-gradient(circle, var(--color-accent) 0%, transparent 70%);
+      animation: floatBlob2 22s ease-in-out infinite alternate;
+    }
+
+    &--3 {
+      width: 45%;
+      height: 45%;
+      top: 35%;
+      left: 35%;
+      background: radial-gradient(circle, var(--color-coral) 0%, transparent 70%);
+      opacity: 0.55;
+      animation: floatBlob3 14s ease-in-out infinite alternate;
+      transition: opacity var(--transition-slow), transform var(--transition-slow);
+    }
+  }
+
+  // Variations selon le niveau de stress
+  &--stress-high {
+    .hero-bg__blob--3 {
+      opacity: 0.75;
+      transform: scale(1.15);
+    }
+  }
+
+  &--stress-med {
+    .hero-bg__blob--3 {
+      opacity: 0.35;
+      transform: scale(0.95);
+    }
+  }
+
+  &--stress-low {
+    .hero-bg__blob--3 {
+      opacity: 0.12;
+      transform: scale(0.75);
+    }
+
+    .hero-bg__blob--1 {
+      animation-duration: 26s;
+    }
+
+    .hero-bg__blob--2 {
+      animation-duration: 28s;
+    }
+  }
+
+  app-floating-symbols {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  // Voile marine 60% garantissant WCAG AA+ (> 7:1)
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(11, 33, 80, 0.60);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  // Contrôles de lecture
+  &__controls {
+    position: absolute;
+    bottom: var(--space-md);
+    right: var(--space-lg);
+    z-index: 3;
+  }
+
+  &__toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    background: rgba(11, 33, 80, 0.65);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(228, 224, 240, 0.3);
+    border-radius: var(--radius-full);
+    color: var(--color-surface);
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+
+    &:hover {
+      background: rgba(75, 46, 143, 0.85);
+      border-color: var(--color-accent);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+  }
+
+  // Pause et réduction de mouvement
+  &--paused,
+  &--reduced {
+    .hero-bg__blob {
+      animation: none !important;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-bg__blob {
+    animation: none !important;
+  }
+}
+
+@keyframes floatBlob1 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(8%, 12%) scale(1.1);
+  }
+  100% {
+    transform: translate(-6%, 5%) scale(0.95);
+  }
+}
+
+@keyframes floatBlob2 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-10%, -8%) scale(1.08);
+  }
+  100% {
+    transform: translate(5%, -12%) scale(0.92);
+  }
+}
+
+@keyframes floatBlob3 {
+  0% {
+    transform: translate(0, 0) scale(0.95);
+  }
+  50% {
+    transform: translate(12%, -10%) scale(1.12);
+  }
+  100% {
+    transform: translate(-12%, 8%) scale(1);
+  }
+}

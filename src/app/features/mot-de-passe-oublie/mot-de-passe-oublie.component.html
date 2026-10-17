@@ -1,0 +1,147 @@
+<app-navbar></app-navbar>
+
+<main class="auth-page">
+  <div class="auth-page__card animate-fade-in">
+
+    <!-- ============================================== -->
+    <!-- ÉTAPE 1 : SAISIE DE L'ADRESSE E-MAIL          -->
+    <!-- ============================================== -->
+    @if (step() === 'request') {
+      <div class="auth-page__header">
+        <div class="auth-page__logo-container">
+          <app-logo variant="full" [size]="88" />
+        </div>
+        <h1 class="auth-page__title">Mot de passe oublié</h1>
+        <p class="auth-page__subtitle">Quel e-mail avez-vous utilisé ?</p>
+      </div>
+
+      <form (ngSubmit)="onSubmit()" class="auth-form" novalidate>
+        <!-- Champ Adresse e-mail -->
+        <div class="auth-field">
+          <label for="resetEmail" class="auth-field__label">
+            Adresse e-mail <span class="auth-field__required" aria-hidden="true">*</span>
+          </label>
+          <input
+            #emailInput
+            id="resetEmail"
+            type="email"
+            [ngModel]="email()"
+            (ngModelChange)="email.set($event)"
+            name="resetEmail"
+            placeholder="exemple : mohamed&#64;intervia.tn"
+            autocomplete="email"
+            aria-required="true"
+            class="auth-field__input"
+            [class.auth-field__input--error]="emailError()"
+            (blur)="validateEmailOnBlur()"
+            (input)="emailError.set('')" />
+
+          <div class="auth-field__feedback" aria-live="polite">
+            @if (emailError()) {
+              <span class="auth-field__error animate-fade-in">{{ emailError() }}</span>
+            }
+          </div>
+        </div>
+
+        <!-- Bouton principal : Envoyer le lien -->
+        <div class="auth-form__actions">
+          <app-btn
+            variant="primary"
+            size="lg"
+            type="submit"
+            [fullWidth]="true"
+            [loading]="loading()"
+            icon="send">
+            {{ loading() ? 'Envoi en cours…' : 'Envoyer le lien' }}
+          </app-btn>
+
+          <!-- Bouton secondaire : Retour à la connexion -->
+          <a routerLink="/connexion" class="auth-page__secondary-btn">
+            Retour à la connexion
+          </a>
+        </div>
+      </form>
+
+      <!-- Mention bienveillante -->
+      <div class="auth-page__info-banner" role="note">
+        <app-icon name="shield" aria-hidden="true" />
+        <div class="auth-page__info-desc">
+          Si votre compte existe, vous recevrez un lien en quelques secondes. Vérifiez aussi vos courriers indésirables.
+        </div>
+      </div>
+    }
+
+    <!-- ============================================== -->
+    <!-- ÉTAPE 2 : ÉCRAN DE CONFIRMATION (LIEN ENVOYÉ)  -->
+    <!-- ============================================== -->
+    @if (step() === 'confirmation') {
+      <div class="auth-page__confirmation animate-fade-in">
+        <div class="auth-page__success-badge" aria-hidden="true">
+          <app-icon name="mark_email_read" [size]="44" />
+        </div>
+
+        <h1 #confirmHeading class="auth-page__title" tabindex="-1">Lien envoyé !</h1>
+
+        <p class="auth-page__confirmation-text">
+          Si cette adresse existe dans notre système, un e-mail vient de partir avec les instructions à :
+        </p>
+
+        <div class="auth-page__email-highlight">
+          <strong>{{ email() }}</strong>
+        </div>
+
+        @if (resendSuccess()) {
+          <div class="auth-page__alert auth-page__alert--success animate-fade-in" role="status">
+            <app-icon name="check_circle" [size]="18" aria-hidden="true" />
+            <span>Un nouvel e-mail de réinitialisation vient d'être envoyé.</span>
+          </div>
+        }
+
+        <div class="auth-form__actions">
+          <!-- Action principale : Ouvrir le lien de démonstration -->
+          <app-btn
+            variant="primary"
+            size="lg"
+            [fullWidth]="true"
+            icon="arrow_forward"
+            (onClick)="openDemoLink()">
+            Ouvrir le lien de démonstration
+          </app-btn>
+
+          <!-- Compte à rebours 30s pour renvoi -->
+          <div class="auth-page__resend-wrapper">
+            @if (resendCountdown() > 0) {
+              <button
+                type="button"
+                class="auth-page__resend-btn auth-page__resend-btn--disabled"
+                disabled
+                aria-disabled="true">
+                Renvoyer possible dans {{ resendCountdown() }} s…
+              </button>
+            } @else {
+              <button
+                type="button"
+                class="auth-page__resend-btn auth-page__resend-btn--active"
+                (click)="resendLink()">
+                <app-icon name="refresh" [size]="16" aria-hidden="true" />
+                <span>Renvoyer le lien</span>
+              </button>
+            }
+          </div>
+
+          <!-- Lien : Je me suis trompé d'adresse -->
+          <div class="auth-page__correction">
+            <button type="button" class="auth-page__text-link" (click)="backToInput()">
+              Je me suis trompé d'adresse
+            </button>
+          </div>
+
+          <div class="auth-page__footer-link">
+            <a routerLink="/connexion">Retour à la connexion</a>
+          </div>
+        </div>
+      </div>
+    }
+
+  </div>
+</main>

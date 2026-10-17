@@ -1,0 +1,119 @@
+.floating-symbols-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1; // Au-dessus du maillage/vidéo mais SOUS le voile sombre et le contenu
+
+  color: var(--color-surface);
+  transition: color var(--transition-slow);
+
+  &--warm {
+    color: var(--color-tint-light);
+  }
+
+  &--cool {
+    color: var(--color-surface);
+  }
+
+  &--breathing {
+    .floating-symbol {
+      animation: gentleBreath 4s ease-in-out infinite alternate;
+    }
+  }
+
+  &--reduced {
+    .floating-symbol {
+      animation: none !important;
+      transition: none !important;
+      opacity: 0.1 !important;
+      pointer-events: none !important;
+    }
+  }
+}
+
+.floating-symbol {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  cursor: pointer;
+  will-change: transform, opacity;
+  transition: opacity 0.4s ease-out, filter var(--transition-fast);
+  user-select: none;
+
+  &:hover {
+    filter: drop-shadow(0 0 8px rgba(239, 234, 250, 0.7));
+  }
+
+  &--burst {
+    transform: scale(0) !important;
+    opacity: 0 !important;
+  }
+}
+
+.logo-symbol-svg {
+  display: block;
+}
+
+// Étiquette flottante de 1,5 seconde lors du clic
+.floating-label {
+  position: absolute;
+  pointer-events: none;
+  z-index: 10;
+  transform: translate(-50%, -100%);
+  padding: 4px var(--space-sm);
+  background: rgba(11, 33, 80, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-full);
+  color: var(--color-surface);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes labelPop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -70%) scale(0.85);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -100%) scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, -105%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -120%) scale(0.9);
+  }
+}
+
+.animate-label-pop {
+  animation: labelPop 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes gentleBreath {
+  0% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-symbols-container .floating-symbol {
+    animation: none !important;
+    transition: none !important;
+    opacity: 0.1 !important;
+    pointer-events: none !important;
+  }
+}

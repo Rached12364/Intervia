@@ -17,7 +17,7 @@ import { IconComponent } from '../../../shared/components/icon/icon.component';
         <div class="admin-topbar__inner">
           <div class="admin-topbar__left">
             <a routerLink="/admin" class="admin-topbar__logo" title="IntervIA - Espace Administration">
-              <app-logo variant="full" theme="dark" [size]="28" />
+              <app-logo variant="full" theme="dark" [size]="52" loading="eager" />
             </a>
             <div class="admin-topbar__badge">
               <app-icon name="admin_panel_settings" [size]="16" aria-hidden="true" />

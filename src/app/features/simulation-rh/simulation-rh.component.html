@@ -12,6 +12,16 @@
         <h2>Vérification du Matériel &amp; Connexion</h2>
         <p class="text-secondary">Assurons-nous que votre caméra et votre microphone fonctionnent correctement avant de démarrer.</p>
 
+        <!-- Carte Votre recruteuse IA -->
+        <div class="simulation-page__recruiter-card">
+          <app-ia-avatar size="l" state="idle" [decorative]="true"></app-ia-avatar>
+          <div class="simulation-page__recruiter-card-info">
+            <span class="simulation-page__recruiter-kicker">Votre recruteuse IA</span>
+            <h3>Bonjour, je suis votre recruteuse IA.</h3>
+            <p>Prenez votre temps, nous avançons une question à la fois.</p>
+          </div>
+        </div>
+
         <!-- Camera Preview -->
         @if (cameraGranted()) {
           <video #videoPreview autoplay muted playsinline class="simulation-page__preview-video"></video>
@@ -86,31 +96,52 @@
 
     <!-- Phase 2: Live Interview -->
     @if (phase() === 'interview') {
-      <div class="simulation-page__interview-grid">
-        <!-- Left: Candidate Video & Soundwave -->
-        <div class="simulation-page__video-container">
-          @if (!fallbackTextMode()) {
-            <video #videoPlayer autoplay muted playsinline class="simulation-page__live-video"></video>
-            <div class="simulation-page__soundwave">
-              <div class="bar"></div>
-              <div class="bar"></div>
-              <div class="bar"></div>
-              <span>Audio Actif</span>
-            </div>
-          } @else {
-            <div class="simulation-page__live-video simulation-page__live-video--fallback">
-              <app-icon name="edit_note" class="simulation-page__fallback-icon" aria-hidden="true" />
-              <h3>Mode Réponses Écrites Actif</h3>
-              <p class="text-xs">Tapez directement vos réponses au clavier ci-contre</p>
-            </div>
-          }
-
-          <!-- AI Recruiter Avatar -->
-          <div class="simulation-page__ai-avatar">
-            <app-icon name="smart_toy" aria-hidden="true" />
-            <span>Recruteur IA</span>
-          </div>
+      @if (submitting()) {
+        <div class="simulation-page__submitting-card animate-fade-in" role="status">
+          <app-ia-avatar size="l" state="réfléchit" [decorative]="true"></app-ia-avatar>
+          <h2>Merci, j'analyse vos réponses…</h2>
+          <p class="text-secondary">Synthèse bienveillante et diagnostic de vos axes d'amélioration en cours.</p>
         </div>
+      } @else {
+        <div class="simulation-page__interview-grid">
+          <!-- Left: Recruiter AI (size l) & Candidate Stage -->
+          <div class="simulation-page__stage-column">
+            <!-- Recruteuse IA en direct (parle puis écoute) -->
+            <div class="simulation-page__recruiter-live-card">
+              <div class="simulation-page__recruiter-live-avatar">
+                <app-ia-avatar size="l" [state]="recruiterState()" [decorative]="true"></app-ia-avatar>
+              </div>
+              <div class="simulation-page__recruiter-live-meta">
+                <span class="simulation-page__recruiter-live-role">Recruteuse IA</span>
+                <span class="simulation-page__recruiter-live-status">
+                  @if (recruiterState() === 'parle') {
+                    Énonce la question…
+                  } @else {
+                    À votre écoute
+                  }
+                </span>
+              </div>
+            </div>
+
+            <!-- Candidate Video / Written Response Container -->
+            <div class="simulation-page__video-container">
+              @if (!fallbackTextMode()) {
+                <video #videoPlayer autoplay muted playsinline class="simulation-page__live-video"></video>
+                <div class="simulation-page__soundwave">
+                  <div class="bar"></div>
+                  <div class="bar"></div>
+                  <div class="bar"></div>
+                  <span>Audio Actif</span>
+                </div>
+              } @else {
+                <div class="simulation-page__live-video simulation-page__live-video--fallback">
+                  <app-icon name="edit_note" class="simulation-page__fallback-icon" aria-hidden="true" />
+                  <h3>Mode Réponses Écrites Actif</h3>
+                  <p class="text-xs">Tapez directement vos réponses au clavier ci-contre</p>
+                </div>
+              }
+            </div>
+          </div>
 
         <!-- Right: Current Question & Timer -->
         <div class="simulation-page__question-card">
@@ -160,5 +191,6 @@
         </div>
       </div>
     }
+  }
   </div>
 </app-focus-layout>

@@ -4,40 +4,28 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-2xl) var(--space-md);
-  background: radial-gradient(circle at 50% 0%, var(--color-primary-light) 0%, var(--color-bg) 70%);
+  background: radial-gradient(circle at 50% 0%, var(--color-tint-light) 0%, var(--color-bg) 70%);
 
   &__card {
     width: 100%;
-    max-width: 480px;
+    max-width: 520px;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-xl);
     padding: var(--space-2xl);
     box-shadow: var(--shadow-xl);
-    animation: fadeInUp var(--transition-slow) both;
   }
 
   &__header {
     text-align: center;
-    margin-bottom: var(--space-xl);
+    margin-bottom: var(--space-lg);
   }
 
-  &__badge {
-    display: inline-flex;
+  &__logo-container {
+    display: flex;
+    justify-content: center;
     align-items: center;
-    gap: var(--space-xs);
-    padding: 6px var(--space-md);
-    background: var(--color-primary-light);
-    color: var(--color-primary);
-    border-radius: var(--radius-full);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-semibold);
     margin-bottom: var(--space-md);
-
-    app-icon {
-      width: 16px;
-      height: 16px;
-    }
   }
 
   &__title {
@@ -50,34 +38,38 @@
   &__subtitle {
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
+    margin: 0;
   }
 
-  &__demo-section {
+  &__info-banner {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
-    margin-bottom: var(--space-xl);
-    padding: var(--space-md);
-    background: var(--color-bg);
+    gap: var(--space-md);
+    align-items: flex-start;
+    padding: var(--space-md) var(--space-lg);
+    background: var(--color-tint-light);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    border: 1px dashed var(--color-border);
+    margin-bottom: var(--space-lg);
+
+    > app-icon {
+      width: 24px;
+      height: 24px;
+      color: var(--color-primary);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
   }
 
-  &__demo-title {
+  &__info-desc {
     font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-bold);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text-light);
-    margin-bottom: 2px;
+    color: var(--color-text-secondary);
+    line-height: 1.4;
   }
 
   &__divider {
     display: flex;
     align-items: center;
     text-align: center;
-    color: var(--color-text-light);
-    font-size: var(--font-size-xs);
     margin: var(--space-lg) 0;
 
     &::before, &::after {
@@ -88,66 +80,420 @@
 
     span {
       padding: 0 var(--space-md);
+      font-size: var(--font-size-xs);
+      color: var(--color-text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
   }
 
-  &__form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-lg);
-  }
-
   &__alert {
-    padding: var(--space-md);
-    background: var(--color-error-light);
-    border: 1px solid var(--color-error);
-    border-radius: var(--radius-md);
-    color: var(--color-error);
-    font-size: var(--font-size-sm);
     display: flex;
     align-items: center;
     gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-md);
+
+    &--error {
+      background-color: var(--color-error-light);
+      border: 1px solid var(--color-error);
+      color: var(--color-error);
+
+      app-icon {
+        color: var(--color-error);
+        flex-shrink: 0;
+      }
+    }
+
+    &--success {
+      background-color: var(--color-success-light);
+      border: 1px solid var(--color-success);
+      color: var(--color-success);
+
+      app-icon {
+        color: var(--color-success);
+        flex-shrink: 0;
+      }
+    }
   }
 
   &__footer {
-    margin-top: var(--space-xl);
     text-align: center;
+    margin-top: var(--space-xl);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--color-border);
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
 
     a {
       font-weight: var(--font-weight-semibold);
+      color: var(--color-primary);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+
+      &:hover {
+        color: var(--color-primary-hover);
+      }
+
+      &:focus-visible {
+        outline: 3px solid var(--color-accent);
+        outline-offset: 2px;
+      }
     }
   }
+}
 
-  &__info-banner {
+// ---------------------------------------------
+// CARTES DE RÔLE (DÉMONSTRATION)
+// ---------------------------------------------
+.auth-roles {
+  margin-bottom: var(--space-md);
+
+  &__title {
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-secondary);
+    margin: 0 0 var(--space-sm) 0;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm);
+
+    @media (max-width: 520px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.auth-role-card {
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  background-color: var(--color-surface);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all var(--transition-fast);
+  user-select: none;
+
+  &:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  &--selected {
+    border-color: var(--color-primary);
+    background-color: var(--color-tint-light);
+    box-shadow: var(--shadow-sm);
+  }
+
+  &__top {
     display: flex;
-    gap: var(--space-md);
-    align-items: flex-start;
-    padding: var(--space-md) var(--space-lg);
-    background: #FDF6EC;
-    border: 1px solid #F0DFC0;
-    border-radius: var(--radius-lg);
-    margin-bottom: var(--space-lg);
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2px;
+  }
 
-    > app-icon {
-      width: 24px;
-      height: 24px;
-      color: #C27A1A;
-      flex-shrink: 0;
-      margin-top: 2px;
+  &__icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--candidate {
+      background-color: var(--color-tint-light);
+      color: var(--color-primary);
+    }
+
+    &--admin {
+      background-color: var(--color-tint-light);
+      color: var(--color-accent);
     }
   }
 
-  &__info-title {
+  &__radio {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary);
+  }
+
+  &__circle {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border);
+    display: inline-block;
+  }
+
+  &__name {
     font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
+    font-weight: 700;
     color: var(--color-text);
   }
 
-  &__info-desc {
+  &__email {
     font-size: var(--font-size-xs);
     color: var(--color-text-secondary);
+    font-family: monospace;
+  }
+
+  &__direct-link {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--color-primary);
+    font-weight: 600;
+    text-align: left;
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color var(--transition-fast);
+
+    &:hover {
+      color: var(--color-primary-hover);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+  }
+}
+
+// ---------------------------------------------
+// BLOC ASSISTANCE CALME APRÈS 3 ÉCHECS
+// ---------------------------------------------
+.auth-assistance {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background-color: var(--color-tint-light);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-lg);
+
+  app-icon {
+    color: var(--color-primary);
+    flex-shrink: 0;
     margin-top: 2px;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__text {
+    font-size: var(--font-size-xs);
+    color: var(--color-text);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  &__link {
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover {
+      color: var(--color-primary-hover);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+  }
+}
+
+// ---------------------------------------------
+// FORMULAIRE ET CHAMPS
+// ---------------------------------------------
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &__label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text);
+  }
+
+  &__required {
+    color: var(--color-error);
+  }
+
+  &__forgot-link {
+    font-size: var(--font-size-xs);
+    color: var(--color-primary);
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--color-primary-hover);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+  }
+
+  &__input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    input {
+      width: 100%;
+      padding-right: 42px !important;
+    }
+  }
+
+  &__input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-body);
+    color: var(--color-text);
+    background-color: var(--color-surface);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    box-sizing: border-box;
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(75, 46, 143, 0.15);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+
+    &--error {
+      border-color: var(--color-error) !important;
+      background-color: var(--color-error-light);
+    }
+  }
+
+  &__eye-btn {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: var(--radius-sm);
+
+    &:hover {
+      color: var(--color-text);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+  }
+
+  &__caps-warning {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: var(--font-size-xs);
+    color: var(--color-warning);
+    margin-top: 2px;
+    font-weight: 600;
+  }
+
+  &__feedback {
+    min-height: 18px;
+  }
+
+  &__error {
+    font-size: var(--font-size-xs);
+    color: var(--color-error);
+    font-weight: 500;
+    line-height: 1.3;
+  }
+}
+
+.auth-remember {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  user-select: none;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  padding: 4px 0;
+
+  &__checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 3px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+  }
+
+  &__label {
+    line-height: 1.2;
+  }
+}
+
+.auth-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+
+  &__helper {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    text-align: center;
   }
 }

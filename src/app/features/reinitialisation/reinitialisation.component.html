@@ -1,0 +1,173 @@
+<app-navbar></app-navbar>
+
+<main class="auth-page">
+  <div class="auth-page__card animate-fade-in">
+
+    <!-- ============================================== -->
+    <!-- CAS DU LIEN EXPIRÉ (?expire=1)                 -->
+    <!-- ============================================== -->
+    @if (isExpired()) {
+      <div class="auth-page__expired animate-fade-in" role="alert">
+        <div class="auth-page__expired-icon" aria-hidden="true">
+          <app-icon name="schedule" [size]="44" />
+        </div>
+
+        <h1 class="auth-page__title">Lien expiré</h1>
+
+        <p class="auth-page__expired-text">
+          Ce lien a expiré pour des raisons de sécurité. Les liens ne sont valables que 15 minutes.
+        </p>
+
+        <div class="auth-form__actions">
+          <app-btn
+            variant="primary"
+            size="lg"
+            [fullWidth]="true"
+            icon="refresh"
+            routerLink="/mot-de-passe-oublie">
+            Demander un nouveau lien
+          </app-btn>
+
+          <a routerLink="/connexion" class="auth-page__secondary-btn">
+            Retour à la connexion
+          </a>
+        </div>
+      </div>
+    } @else {
+      <!-- ============================================== -->
+      <!-- FORMULAIRE DE NOUVEAU MOT DE PASSE             -->
+      <!-- ============================================== -->
+      <div class="auth-page__header">
+        <div class="auth-page__logo-container">
+          <app-logo variant="full" [size]="88" />
+        </div>
+        <h1 class="auth-page__title">Choisissez un nouveau mot de passe</h1>
+        <p class="auth-page__subtitle">
+          Compte concerné : <strong class="auth-page__email-tag">{{ email() }}</strong>
+        </p>
+      </div>
+
+      <!-- Erreur globale si présente -->
+      @if (errorMessage()) {
+        <div class="auth-page__alert auth-page__alert--error animate-fade-in" role="alert" aria-live="assertive">
+          <app-icon name="error_outline" [size]="18" aria-hidden="true" />
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
+        <!-- Champ 1 : Nouveau mot de passe -->
+        <div class="auth-field">
+          <label for="newPassword" class="auth-field__label">
+            Nouveau mot de passe <span class="auth-field__required" aria-hidden="true">*</span>
+          </label>
+          <div class="auth-field__input-wrapper">
+            <input
+              #passwordInput
+              id="newPassword"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="••••••••"
+              autocomplete="new-password"
+              aria-required="true"
+              class="auth-field__input"
+              [class.auth-field__input--valid]="allCriteriaMet()" />
+
+            <button
+              type="button"
+              class="auth-field__eye-btn"
+              [attr.aria-pressed]="showPassword()"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="showPassword() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
+              <app-icon [name]="showPassword() ? 'visibility_off' : 'visibility'" [size]="20" aria-hidden="true" />
+            </button>
+          </div>
+
+          <!-- Critères de mot de passe évalués en direct -->
+          <div class="auth-criteria" role="status" aria-label="Critères du mot de passe">
+            <div class="auth-criteria__title">Votre mot de passe doit comporter :</div>
+            <ul class="auth-criteria__list">
+              <li class="auth-criteria__item" [class.auth-criteria__item--valid]="hasMinLength()">
+                <app-icon
+                  [name]="hasMinLength() ? 'check_circle' : 'circle'"
+                  [size]="16"
+                  aria-hidden="true" />
+                <span>Au moins 8 caractères</span>
+              </li>
+              <li class="auth-criteria__item" [class.auth-criteria__item--valid]="hasUppercase()">
+                <app-icon
+                  [name]="hasUppercase() ? 'check_circle' : 'circle'"
+                  [size]="16"
+                  aria-hidden="true" />
+                <span>Au moins une lettre majuscule</span>
+              </li>
+              <li class="auth-criteria__item" [class.auth-criteria__item--valid]="hasNumber()">
+                <app-icon
+                  [name]="hasNumber() ? 'check_circle' : 'circle'"
+                  [size]="16"
+                  aria-hidden="true" />
+                <span>Au moins un chiffre</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Champ 2 : Confirmer le mot de passe -->
+        <div class="auth-field">
+          <label for="confirmPassword" class="auth-field__label">
+            Confirmez le mot de passe <span class="auth-field__required" aria-hidden="true">*</span>
+          </label>
+          <div class="auth-field__input-wrapper">
+            <input
+              #confirmInput
+              id="confirmPassword"
+              [type]="showConfirmPassword() ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              placeholder="••••••••"
+              autocomplete="new-password"
+              aria-required="true"
+              class="auth-field__input"
+              [class.auth-field__input--error]="!passwordsMatch() && confirmPasswordValue().length > 0"
+              [class.auth-field__input--valid]="passwordsMatch() && confirmPasswordValue().length > 0 && allCriteriaMet()" />
+
+            <button
+              type="button"
+              class="auth-field__eye-btn"
+              [attr.aria-pressed]="showConfirmPassword()"
+              (click)="toggleConfirmPasswordVisibility()"
+              [attr.aria-label]="showConfirmPassword() ? 'Masquer la confirmation' : 'Afficher la confirmation'">
+              <app-icon [name]="showConfirmPassword() ? 'visibility_off' : 'visibility'" [size]="20" aria-hidden="true" />
+            </button>
+          </div>
+
+          <div class="auth-field__feedback" aria-live="polite">
+            @if (!passwordsMatch() && confirmPasswordValue().length > 0) {
+              <span class="auth-field__error animate-fade-in">
+                Les deux mots de passe ne correspondent pas.
+              </span>
+            }
+          </div>
+        </div>
+
+        <!-- Bouton principal : Enregistrer le mot de passe -->
+        <div class="auth-form__actions">
+          <app-btn
+            variant="primary"
+            size="lg"
+            type="submit"
+            [fullWidth]="true"
+            [disabled]="!canSubmit()"
+            [loading]="loading()"
+            icon="lock_reset">
+            {{ loading() ? 'Enregistrement…' : 'Enregistrer le mot de passe' }}
+          </app-btn>
+
+          <a routerLink="/connexion" class="auth-page__secondary-btn">
+            Annuler et retourner à la connexion
+          </a>
+        </div>
+      </form>
+    }
+
+  </div>
+</main>

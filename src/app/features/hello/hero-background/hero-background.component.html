@@ -1,0 +1,59 @@
+<div
+  class="hero-bg"
+  [class.hero-bg--reduced]="reducedMotion"
+  [class.hero-bg--paused]="!isPlaying"
+  [class.hero-bg--stress-high]="stressLevel >= 7"
+  [class.hero-bg--stress-med]="stressLevel >= 4 && stressLevel < 7"
+  [class.hero-bg--stress-low]="stressLevel < 4">
+
+  <!-- Vidéo optionnelle si présente sur disque -->
+  @if (!videoErrorOccurred() && !reducedMotion) {
+    <video
+      #videoEl
+      class="hero-bg__video"
+      [class.hero-bg__video--visible]="videoAvailable()"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="metadata"
+      poster="assets/videos/hero.jpg"
+      (canplay)="onVideoCanPlay()"
+      (error)="onVideoError()"
+      aria-hidden="true">
+      <source src="assets/videos/hero.webm" type="video/webm">
+      <source src="assets/videos/hero.mp4" type="video/mp4">
+    </video>
+  }
+
+  <!-- Maillage de dégradés CSS animé aux couleurs de la marque (Marine, Indigo, Violet, Corail décoratif) -->
+  <div class="hero-bg__mesh" aria-hidden="true">
+    <div class="hero-bg__blob hero-bg__blob--1"></div>
+    <div class="hero-bg__blob hero-bg__blob--2"></div>
+    <div class="hero-bg__blob hero-bg__blob--3"></div>
+  </div>
+
+  <!-- Couche interactive de symboles volants aléatoires et doux -->
+  <app-floating-symbols
+    [stressLevel]="stressLevel"
+    [reducedMotion]="reducedMotion"
+    [isPlaying]="isPlaying"
+    [isBreathingActive]="isBreathingActive">
+  </app-floating-symbols>
+
+  <!-- Voile marine à 60 % garantissant un contraste WCAG AA+ optimal pour le texte blanc -->
+  <div class="hero-bg__overlay" aria-hidden="true"></div>
+
+  <!-- Bouton pause/lecture toujours visible -->
+  <div class="hero-bg__controls">
+    <button
+      type="button"
+      class="hero-bg__toggle-btn"
+      [attr.aria-pressed]="!isPlaying"
+      (click)="onToggle()"
+      [title]="isPlaying ? 'Mettre en pause l\'animation d\'arrière-plan' : 'Reprendre l\'animation d\'arrière-plan'">
+      <app-icon [name]="isPlaying ? 'pause' : 'play_arrow'" [size]="18" aria-hidden="true" />
+      <span>{{ isPlaying ? 'Arrière-plan animé' : 'Arrière-plan figé' }}</span>
+    </button>
+  </div>
+</div>

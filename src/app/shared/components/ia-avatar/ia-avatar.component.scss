@@ -1,0 +1,194 @@
+.ia-avatar {
+  display: inline-flex;
+  position: relative;
+  user-select: none;
+  flex-shrink: 0;
+
+  &__frame {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    overflow: hidden;
+    background-color: var(--color-navy);
+    border: 2px solid var(--color-border);
+    transition: all var(--transition-normal);
+  }
+
+  &__halo {
+    position: absolute;
+    inset: -6px;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+    z-index: 1;
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+    background-color: var(--color-navy);
+  }
+
+  // TAILLES
+  &--s {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-full);
+
+    .ia-avatar__badge {
+      display: none; // Trop petit pour les badges textuels
+    }
+  }
+
+  &--m {
+    width: 100px;
+    height: 100px;
+    border-radius: var(--radius-xl);
+  }
+
+  &--l {
+    width: 220px;
+    max-width: 340px; // Ne dépasse jamais 360px
+    height: 220px;
+    border-radius: var(--radius-2xl);
+  }
+
+  // ÉTAT : PARLE (HALO BLEU DOUX QUI PULSE + PETITES ONDES)
+  &--speaking {
+    .ia-avatar__frame {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 24px rgba(75, 46, 143, 0.45), 0 0 40px rgba(136, 56, 176, 0.3);
+      animation: pulseGlow 2.5s ease-in-out infinite alternate;
+    }
+  }
+
+  // ÉTAT : ÉCOUTE (HALO FIXE DISCRET)
+  &--listening {
+    .ia-avatar__frame {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 20px rgba(11, 33, 80, 0.5);
+    }
+  }
+
+  // ÉTAT : RÉFLÉCHIT (3 POINTS QUI APPARAISSENT UN À UN)
+  &--thinking {
+    .ia-avatar__frame {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 20px rgba(136, 56, 176, 0.35);
+    }
+  }
+
+  // BADGES D'ÉTAT
+  &__badge {
+    position: absolute;
+    bottom: var(--space-xs);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px var(--space-sm);
+    border-radius: var(--radius-full);
+    background: rgba(11, 33, 80, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(228, 224, 240, 0.3);
+    color: var(--color-surface);
+    font-size: var(--font-size-2xs);
+    font-weight: var(--font-weight-medium);
+    white-space: nowrap;
+
+    &--speaking {
+      height: 20px;
+      padding: 0 var(--space-xs);
+      background: rgba(75, 46, 143, 0.88);
+      border-color: var(--color-accent);
+    }
+
+    &--listening {
+      border-color: var(--color-primary);
+    }
+
+    &--thinking {
+      background: rgba(14, 43, 99, 0.9);
+      border-color: var(--color-accent);
+    }
+  }
+}
+
+// Ondes sonores pour l'état parle
+.wave-bar {
+  width: 2.5px;
+  background: var(--color-surface);
+  border-radius: 2px;
+  animation: wavePulse 1s ease-in-out infinite alternate;
+
+  &--1 { height: 8px; animation-delay: 0.1s; }
+  &--2 { height: 14px; animation-delay: 0.3s; }
+  &--3 { height: 9px; animation-delay: 0.2s; }
+}
+
+// Point vert / bleu pour écoute
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+}
+
+.badge-text {
+  font-size: var(--font-size-2xs);
+}
+
+// Trois points de réflexion
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  opacity: 0.2;
+  animation: dotPulse 1.4s infinite ease-in-out both;
+
+  &--1 { animation-delay: 0s; }
+  &--2 { animation-delay: 0.2s; }
+  &--3 { animation-delay: 0.4s; }
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 16px rgba(75, 46, 143, 0.35), 0 0 30px rgba(136, 56, 176, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 28px rgba(75, 46, 143, 0.6), 0 0 50px rgba(136, 56, 176, 0.45);
+  }
+}
+
+@keyframes wavePulse {
+  0% { transform: scaleY(0.4); }
+  100% { transform: scaleY(1); }
+}
+
+@keyframes dotPulse {
+  0%, 80%, 100% {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.2);
+    background: var(--color-accent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ia-avatar--speaking .ia-avatar__frame,
+  .wave-bar,
+  .dot {
+    animation: none !important;
+  }
+}

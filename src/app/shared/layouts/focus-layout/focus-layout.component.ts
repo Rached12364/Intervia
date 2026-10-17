@@ -3,17 +3,18 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { BtnComponent } from '../../components/btn/btn.component';
 import { ProgressBarComponent } from '../../components/progress-bar/progress-bar.component';
+import { LogoComponent } from '../../components/logo/logo.component';
 
 @Component({
   selector: 'app-focus-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, BtnComponent, ProgressBarComponent],
+  imports: [CommonModule, RouterOutlet, BtnComponent, ProgressBarComponent, LogoComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="focus-layout">
       <header class="focus-layout__header">
         <div class="focus-layout__left">
-          <span class="focus-layout__logo">IntervIA</span>
+          <app-logo variant="symbol" [size]="40" />
           <span class="focus-layout__divider"></span>
           <span class="focus-layout__title">{{ title }}</span>
         </div>

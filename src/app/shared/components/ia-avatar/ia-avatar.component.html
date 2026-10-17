@@ -1,0 +1,51 @@
+<div
+  class="ia-avatar"
+  [class.ia-avatar--s]="size === 's'"
+  [class.ia-avatar--m]="size === 'm'"
+  [class.ia-avatar--l]="size === 'l'"
+  [class.ia-avatar--speaking]="normalizedState() === 'speaking'"
+  [class.ia-avatar--listening]="normalizedState() === 'listening'"
+  [class.ia-avatar--thinking]="normalizedState() === 'thinking'"
+  [class.ia-avatar--idle]="normalizedState() === 'idle'"
+  [attr.aria-hidden]="decorative ? 'true' : null"
+  [attr.aria-label]="decorative ? null : accessibleStateLabel()"
+  [attr.role]="decorative ? null : 'img'">
+
+  <div class="ia-avatar__frame">
+    <!-- Halo lumineux réactif -->
+    <div class="ia-avatar__halo" aria-hidden="true"></div>
+
+    <!-- Image cadrée en haut avec fond marine cohérent -->
+    <img
+      src="assets/ia-recruteuse.png"
+      alt="Recruteuse IA"
+      class="ia-avatar__img"
+      loading="eager"
+      width="471"
+      height="485" />
+
+    <!-- Badges d'état animés -->
+    @if (normalizedState() === 'speaking') {
+      <div class="ia-avatar__badge ia-avatar__badge--speaking" aria-hidden="true">
+        <span class="wave-bar wave-bar--1"></span>
+        <span class="wave-bar wave-bar--2"></span>
+        <span class="wave-bar wave-bar--3"></span>
+      </div>
+    }
+
+    @if (normalizedState() === 'listening') {
+      <div class="ia-avatar__badge ia-avatar__badge--listening" aria-hidden="true">
+        <span class="pulse-dot"></span>
+        <span class="badge-text">À votre écoute</span>
+      </div>
+    }
+
+    @if (normalizedState() === 'thinking') {
+      <div class="ia-avatar__badge ia-avatar__badge--thinking" aria-hidden="true">
+        <span class="dot dot--1"></span>
+        <span class="dot dot--2"></span>
+        <span class="dot dot--3"></span>
+      </div>
+    }
+  </div>
+</div>

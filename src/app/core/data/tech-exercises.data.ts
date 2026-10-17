@@ -1,4 +1,4 @@
-import { TechQuestion } from '../models/question.model';
+﻿import { TechQuestion } from '../models/question.model';
 
 export const TECH_EXERCISES_BANK: Record<string, Record<'debutant' | 'intermediaire' | 'avance', TechQuestion>> = {
   'JavaScript': {
@@ -20,15 +20,15 @@ function filtrerEtatsCandidats(candidats, scoreSeuil) {
     .sort();
 }`
       },
-      expectedOutput: '["Amira", "Yassine"]',
+      expectedOutput: '["Amira", "Mohamed"]',
       difficulty: 'facile',
       timeLimit: 15,
       testCases: [
         {
           id: 'tc-1',
           label: 'Filtre avec candidats au-dessus du seuil',
-          input: 'candidats=[{nom: "Yassine", score: 85}, {nom: "Sami", score: 45}, {nom: "Amira", score: 90}], seuil=70',
-          expectedOutput: '["Amira", "Yassine"]'
+          input: 'candidats=[{nom: "Mohamed", score: 85}, {nom: "Sami", score: 45}, {nom: "Amira", score: 90}], seuil=70',
+          expectedOutput: '["Amira", "Mohamed"]'
         },
         {
           id: 'tc-2',
@@ -114,15 +114,15 @@ function analyserPerformances(evaluations, fenetre) {
     # Votre code ici
     return sorted([c['nom'] for c in candidats if c['score'] >= min_score])`
       },
-      expectedOutput: "['Amira', 'Yassine']",
+      expectedOutput: "['Amira', 'Mohamed']",
       difficulty: 'facile',
       timeLimit: 15,
       testCases: [
         {
           id: 'tc-1',
           label: 'Filtre simple',
-          input: 'candidats=[{"nom": "Yassine", "score": 88}, {"nom": "Amira", "score": 92}], min_score=80',
-          expectedOutput: "['Amira', 'Yassine']"
+          input: 'candidats=[{"nom": "Mohamed", "score": 88}, {"nom": "Amira", "score": 92}], min_score=80',
+          expectedOutput: "['Amira', 'Mohamed']"
         }
       ]
     },
@@ -175,3 +175,4 @@ def top_competences(offres: list[dict], top_n: int = 3) -> dict[str, int]:
     }
   }
 };
+

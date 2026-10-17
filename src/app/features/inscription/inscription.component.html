@@ -1,4 +1,4 @@
-<app-navbar></app-navbar>
+﻿<app-navbar></app-navbar>
 
 <main class="register-page">
   <div class="register-page__container">
@@ -10,7 +10,7 @@
           <div class="register-page__success-icon">
             <app-icon name="check_circle" [size]="48" aria-hidden="true" />
           </div>
-          <h1 class="register-page__title">Bienvenue, {{ step1Form.get('firstName')?.value || 'Yassine' }}.</h1>
+          <h1 class="register-page__title">Bienvenue, {{ step1Form.get('firstName')?.value || 'Mohamed' }}.</h1>
           <p class="register-page__subtitle">Votre profil est prêt.</p>
           <div class="register-page__success-desc">
             Redirection vers votre tableau de bord en cours...
@@ -21,7 +21,7 @@
 
         <!-- Header -->
         <div class="register-page__header">
-          <app-logo variant="full" theme="dark" [size]="32" />
+          <app-logo variant="full" [size]="88" />
           <span class="register-page__kicker">VOTRE PROCHAIN DÉPART</span>
           <h1 class="register-page__title">Votre potentiel, pas votre stress.</h1>
           <p class="register-page__subtitle">
@@ -274,7 +274,7 @@
                       type="text"
                       formControlName="firstName"
                       (blur)="saveDraft()"
-                      placeholder="Ex. Yassine"
+                      placeholder="Ex. Mohamed"
                       aria-required="true" />
                   </app-form-field>
 
@@ -626,3 +626,4 @@
     </div>
   </div>
 </main>
+

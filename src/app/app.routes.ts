@@ -1,12 +1,15 @@
 import { Routes } from '@angular/router';
 import { candidateGuard } from './core/guards/candidate.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { guestGuard } from './core/guards/guest.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'connexion',
-    pathMatch: 'full'
+    pathMatch: 'full',
+    canActivate: [guestGuard],
+    loadComponent: () => import('./features/hello/hello.component')
+      .then(m => m.HelloComponent)
   },
   {
     path: 'inscription',
@@ -15,8 +18,21 @@ export const routes: Routes = [
   },
   {
     path: 'connexion',
+    canActivate: [guestGuard],
     loadComponent: () => import('./features/connexion/connexion.component')
       .then(m => m.ConnexionComponent)
+  },
+  {
+    path: 'mot-de-passe-oublie',
+    canActivate: [guestGuard],
+    loadComponent: () => import('./features/mot-de-passe-oublie/mot-de-passe-oublie.component')
+      .then(m => m.MotDePasseOublieComponent)
+  },
+  {
+    path: 'reinitialisation',
+    canActivate: [guestGuard],
+    loadComponent: () => import('./features/reinitialisation/reinitialisation.component')
+      .then(m => m.ReinitialisationComponent)
   },
   {
     path: 'dashboard',
@@ -64,6 +80,12 @@ export const routes: Routes = [
     path: 'preparation',
     loadComponent: () => import('./features/preparation/preparation.component')
       .then(m => m.PreparationComponent),
+    canActivate: [candidateGuard]
+  },
+  {
+    path: 'ameliorer-cv',
+    loadComponent: () => import('./features/ameliorer-cv/ameliorer-cv.component')
+      .then(m => m.AmeliorerCvComponent),
     canActivate: [candidateGuard]
   },
   {

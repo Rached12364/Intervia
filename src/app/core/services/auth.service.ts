@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+﻿import { Injectable, signal, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, of, delay, throwError } from 'rxjs';
 import { User, LoginCredentials } from '../models/user.model';
@@ -6,9 +6,9 @@ import { User, LoginCredentials } from '../models/user.model';
 const DEMO_USERS: User[] = [
   {
     id: '1',
-    firstName: 'Yassine',
+    firstName: 'Mohamed',
     lastName: 'Ben Ali',
-    email: 'yassine@intervia.tn',
+    email: 'mohamed@intervia.tn',
     phone: '+216 55 123 456',
     domain: 'Développement Web',
     profileType: 'emploi',
@@ -105,3 +105,4 @@ export class AuthService {
     return this.currentUser();
   }
 }
+

@@ -85,7 +85,20 @@ export type IconName =
   | 'task_alt'
   | 'wifi'
   | 'wifi_off'
+  | 'mic'
   | 'mic_off'
+  | 'spa'
+  | 'favorite'
+  | 'face'
+  | 'sparkles'
+  | 'chip'
+  | 'network_nodes'
+  | 'robot'
+  | 'audio_wave'
+  | 'circuit_brain'
+  | 'cv_check'
+  | 'chat_bubble'
+  | 'score_bars'
   | 'visibility'
   | 'visibility_off';
 
@@ -521,6 +534,84 @@ export type IconName =
           <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
           <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
           <line x1="2" x2="22" y1="2" y2="22" />
+        }
+        @case ('mic') {
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+          <line x1="12" x2="12" y1="19" y2="22" />
+        }
+        @case ('spa') {
+          <path d="M12 22C12 22 4 17 4 10C4 5.58 7.58 2 12 2C16.42 2 20 5.58 20 10C20 17 12 22 12 22Z" />
+          <path d="M12 2V22" />
+          <path d="M12 12C9 10 7 10 4 10" />
+          <path d="M12 16C15 14 17 14 20 14" />
+        }
+        @case ('favorite') {
+          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+        }
+        @case ('face') {
+          <circle cx="12" cy="12" r="10" />
+          <circle cx="9" cy="10" r="1" />
+          <circle cx="15" cy="10" r="1" />
+          <path d="M8 15a4 4 0 0 0 8 0" />
+        }
+        @case ('sparkles') {
+          <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+          <path d="m4.93 4.93 2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+        }
+        @case ('chip') {
+          <rect width="12" height="12" x="6" y="6" rx="2" />
+          <path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4" />
+        }
+        @case ('network_nodes') {
+          <circle cx="6" cy="6" r="3" />
+          <circle cx="18" cy="6" r="3" />
+          <circle cx="12" cy="18" r="3" />
+          <line x1="8.5" y1="7.5" x2="15.5" y2="7.5" />
+          <line x1="7.5" y1="8.5" x2="10.5" y2="15.5" />
+          <line x1="16.5" y1="8.5" x2="13.5" y2="15.5" />
+        }
+        @case ('robot') {
+          <rect width="14" height="12" x="5" y="7" rx="2" />
+          <line x1="12" y1="2" x2="12" y2="7" />
+          <circle cx="12" cy="2" r="1" />
+          <circle cx="9" cy="12" r="1" />
+          <circle cx="15" cy="12" r="1" />
+          <line x1="9" y1="15" x2="15" y2="15" />
+          <line x1="2" y1="13" x2="5" y2="13" />
+          <line x1="19" y1="13" x2="22" y2="13" />
+        }
+        @case ('audio_wave') {
+          <line x1="3" y1="12" x2="3" y2="12" />
+          <line x1="7" y1="8" x2="7" y2="16" />
+          <line x1="11" y1="4" x2="11" y2="20" />
+          <line x1="15" y1="7" x2="15" y2="17" />
+          <line x1="19" y1="10" x2="19" y2="14" />
+          <line x1="22" y1="12" x2="22" y2="12" />
+        }
+        @case ('circuit_brain') {
+          <path d="M12 4a4 4 0 0 0-4 4c0 1.3.6 2.5 1.5 3.2L9 15h6l-.5-3.8A4 4 0 0 0 16 8a4 4 0 0 0-4-4Z" />
+          <path d="M9 18h6M10 21h4" />
+          <circle cx="12" cy="9" r="1" />
+          <line x1="9" y1="9" x2="11" y2="9" />
+          <line x1="13" y1="9" x2="15" y2="9" />
+        }
+        @case ('cv_check') {
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <path d="m9 15 2 2 4-4" />
+        }
+        @case ('chat_bubble') {
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          <line x1="8" y1="9" x2="16" y2="9" />
+          <line x1="8" y1="13" x2="13" y2="13" />
+        }
+        @case ('score_bars') {
+          <line x1="4" y1="20" x2="20" y2="20" />
+          <line x1="7" y1="20" x2="7" y2="15" />
+          <line x1="12" y1="20" x2="12" y2="9" />
+          <line x1="17" y1="20" x2="17" y2="4" />
+          <polyline points="7 13 12 7 17 2" />
         }
         @default {
           <!-- Fallback generic circle -->

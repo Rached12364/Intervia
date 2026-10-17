@@ -2,93 +2,249 @@
 
 <main class="auth-page">
   <div class="auth-page__card">
+    <!-- Header -->
     <div class="auth-page__header">
-      <div class="auth-page__badge">
-        <app-logo variant="symbol" theme="dark" [size]="24" />
-        <span>Plateforme IA Recrutement</span>
+      <div class="auth-page__logo-container">
+        <app-logo variant="full" [size]="88" />
       </div>
       <h1 class="auth-page__title">Connexion</h1>
       <p class="auth-page__subtitle">Accédez à vos simulations RH et rapports d'évaluation</p>
     </div>
 
-    <div class="auth-page__info-banner">
+    <!-- Notification de réinitialisation réussie -->
+    @if (resetSuccess()) {
+      <div class="auth-page__alert auth-page__alert--success animate-fade-in" role="status">
+        <app-icon name="check_circle" [size]="20" aria-hidden="true" />
+        <span>Votre mot de passe a été modifié. Vous pouvez vous connecter.</span>
+      </div>
+    }
+
+    <!-- Bandeau de réassurance -->
+    <div class="auth-page__info-banner" role="note">
       <app-icon name="shield" aria-hidden="true" />
       <div class="auth-page__info-desc">
         Vos informations restent sur votre appareil pendant cette démonstration.
       </div>
     </div>
 
-    <!-- Rapid Demo Buttons -->
-    <div class="auth-page__demo-section">
-      <span class="auth-page__demo-title">Connexion rapide Démo (1-clic) :</span>
-      <app-btn
-        variant="primary"
-        size="md"
-        icon="person"
-        [fullWidth]="true"
-        (onClick)="loginAsDemoCandidate()">
-        Se connecter en Candidat (Yassine)
-      </app-btn>
+    <!-- Cartes de sélection de rôle de démonstration -->
+    <section class="auth-roles" aria-labelledby="roles-heading">
+      <h2 id="roles-heading" class="auth-roles__title">Démonstration rapide : choisissez un rôle</h2>
+      <div class="auth-roles__grid" role="radiogroup" aria-labelledby="roles-heading">
+        <!-- Carte Candidat -->
+        <div
+          class="auth-role-card"
+          [class.auth-role-card--selected]="selectedRole() === 'candidat'"
+          (click)="selectRole('candidat')"
+          role="radio"
+          [attr.aria-checked]="selectedRole() === 'candidat'"
+          tabindex="0"
+          (keydown.enter)="selectRole('candidat')"
+          (keydown.space)="selectRole('candidat'); $event.preventDefault()">
+          <div class="auth-role-card__top">
+            <div class="auth-role-card__icon auth-role-card__icon--candidate">
+              <app-icon name="person" [size]="22" aria-hidden="true" />
+            </div>
+            <div class="auth-role-card__radio" aria-hidden="true">
+              @if (selectedRole() === 'candidat') {
+                <app-icon name="check_circle" [size]="20" />
+              } @else {
+                <span class="auth-role-card__circle"></span>
+              }
+            </div>
+          </div>
+          <div class="auth-role-card__name">Je suis candidat : Mohamed</div>
+          <div class="auth-role-card__email">mohamed&#64;intervia.tn</div>
+          <button
+            type="button"
+            class="auth-role-card__direct-link"
+            (click)="loginImmediately('candidat', $event)"
+            title="Se connecter directement en tant que Mohamed">
+            Connexion immédiate avec ce compte
+          </button>
+        </div>
 
-      <app-btn
-        variant="secondary"
-        size="md"
-        icon="admin_panel_settings"
-        [fullWidth]="true"
-        (onClick)="loginAsDemoAdmin()">
-        Se connecter en Administrateur
-      </app-btn>
+        <!-- Carte Administrateur -->
+        <div
+          class="auth-role-card"
+          [class.auth-role-card--selected]="selectedRole() === 'admin'"
+          (click)="selectRole('admin')"
+          role="radio"
+          [attr.aria-checked]="selectedRole() === 'admin'"
+          tabindex="0"
+          (keydown.enter)="selectRole('admin')"
+          (keydown.space)="selectRole('admin'); $event.preventDefault()">
+          <div class="auth-role-card__top">
+            <div class="auth-role-card__icon auth-role-card__icon--admin">
+              <app-icon name="admin_panel_settings" [size]="22" aria-hidden="true" />
+            </div>
+            <div class="auth-role-card__radio" aria-hidden="true">
+              @if (selectedRole() === 'admin') {
+                <app-icon name="check_circle" [size]="20" />
+              } @else {
+                <span class="auth-role-card__circle"></span>
+              }
+            </div>
+          </div>
+          <div class="auth-role-card__name">Je suis administrateur</div>
+          <div class="auth-role-card__email">admin&#64;intervia.tn</div>
+          <button
+            type="button"
+            class="auth-role-card__direct-link"
+            (click)="loginImmediately('admin', $event)"
+            title="Se connecter directement en tant qu'administrateur">
+            Connexion immédiate avec ce compte
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <div class="auth-page__divider" role="separator">
+      <span>ou saisissez vos identifiants</span>
     </div>
 
-    <div class="auth-page__divider">
-      <span>ou avec votre compte</span>
-    </div>
-
-    @if (errorMessage()) {
-      <div class="auth-page__alert" role="alert">
-        <app-icon name="error_outline" aria-hidden="true" />
-        <span>{{ errorMessage() }}</span>
+    <!-- Alertes globales (succès ou erreur générale) -->
+    @if (successMessage()) {
+      <div class="auth-page__alert auth-page__alert--success animate-fade-in" role="status">
+        <app-icon name="check_circle" [size]="20" aria-hidden="true" />
+        <span>{{ successMessage() }}</span>
       </div>
     }
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-page__form">
-      <app-form-field
-        label="Adresse Email"
-        [required]="true"
-        [error]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid ? 'Veuillez saisir une adresse email valide' : ''">
+    @if (globalError()) {
+      <div class="auth-page__alert auth-page__alert--error animate-fade-in" role="alert" aria-live="assertive">
+        <app-icon name="error_outline" [size]="20" aria-hidden="true" />
+        <span>{{ globalError() }}</span>
+      </div>
+    }
+
+    <!-- Assistance calme après 3 échecs -->
+    @if (failedAttempts() >= 3) {
+      <div class="auth-assistance animate-fade-in" role="status">
+        <app-icon name="lightbulb" [size]="20" aria-hidden="true" />
+        <div class="auth-assistance__content">
+          <p class="auth-assistance__text">
+            Besoin d'aide ? Vous pouvez tester la plateforme en un clic avec l'un des rôles de démonstration ci-dessus, ou réinitialiser votre mot de passe en toute simplicité.
+          </p>
+          <a routerLink="/mot-de-passe-oublie" class="auth-assistance__link">
+            Réinitialiser mon mot de passe
+          </a>
+        </div>
+      </div>
+    }
+
+    <!-- Formulaire de connexion -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form" novalidate>
+      <!-- Champ Adresse e-mail -->
+      <div class="auth-field">
+        <label for="email" class="auth-field__label">
+          Adresse e-mail <span class="auth-field__required" aria-hidden="true">*</span>
+        </label>
         <input
+          #emailInput
+          id="email"
           type="email"
           formControlName="email"
-          placeholder="votre.email@exemple.com"
+          placeholder="exemple : mohamed@intervia.tn"
           autocomplete="email"
-          aria-required="true" />
-      </app-form-field>
+          aria-required="true"
+          class="auth-field__input"
+          [class.auth-field__input--error]="emailError()"
+          (blur)="validateEmailOnBlur()"
+          (input)="emailError.set('')" />
+        <div class="auth-field__feedback" aria-live="polite">
+          @if (emailError()) {
+            <span class="auth-field__error animate-fade-in">{{ emailError() }}</span>
+          }
+        </div>
+      </div>
 
-      <app-form-field
-        label="Mot de passe"
-        [required]="true"
-        [error]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid ? 'Le mot de passe est requis (min 6 caractères)' : ''">
+      <!-- Champ Mot de passe -->
+      <div class="auth-field">
+        <div class="auth-field__label-row">
+          <label for="password" class="auth-field__label">
+            Mot de passe <span class="auth-field__required" aria-hidden="true">*</span>
+          </label>
+          <a routerLink="/mot-de-passe-oublie" class="auth-field__forgot-link">
+            Mot de passe oublié ?
+          </a>
+        </div>
+
+        <div class="auth-field__input-wrapper">
+          <input
+            #passwordInput
+            id="password"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            aria-required="true"
+            class="auth-field__input"
+            [class.auth-field__input--error]="passwordError()"
+            (blur)="validatePasswordOnBlur()"
+            (input)="passwordError.set('')"
+            (keydown)="checkCapsLock($event)"
+            (keyup)="checkCapsLock($event)" />
+
+          <button
+            type="button"
+            class="auth-field__eye-btn"
+            [attr.aria-pressed]="showPassword()"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword() ? 'Masquer le mot de passe' : 'Afficher le mot de passe'">
+            <app-icon [name]="showPassword() ? 'visibility_off' : 'visibility'" [size]="20" aria-hidden="true" />
+          </button>
+        </div>
+
+        <!-- Avertissement Verr. Maj. -->
+        @if (capsLockOn()) {
+          <div class="auth-field__caps-warning animate-fade-in" role="status">
+            <app-icon name="arrow_upward" [size]="14" aria-hidden="true" />
+            <span>Touche Verr. Maj. activée</span>
+          </div>
+        }
+
+        <div class="auth-field__feedback" aria-live="polite">
+          @if (passwordError()) {
+            <span class="auth-field__error animate-fade-in">{{ passwordError() }}</span>
+          }
+        </div>
+      </div>
+
+      <!-- Case Se souvenir de mon adresse e-mail -->
+      <label class="auth-remember">
         <input
-          type="password"
-          formControlName="password"
-          placeholder="••••••••"
-          autocomplete="current-password"
-          aria-required="true" />
-      </app-form-field>
+          type="checkbox"
+          [checked]="rememberEmail()"
+          (change)="toggleRememberEmail()"
+          class="auth-remember__checkbox" />
+        <span class="auth-remember__label">Se souvenir de mon adresse e-mail</span>
+      </label>
 
-      <app-btn
-        variant="primary"
-        size="lg"
-        type="submit"
-        [fullWidth]="true"
-        [loading]="loading()">
-        Se connecter
-      </app-btn>
+      <!-- Bouton d'action principal -->
+      <div class="auth-action">
+        <app-btn
+          variant="primary"
+          size="lg"
+          type="submit"
+          [fullWidth]="true"
+          [loading]="loading()"
+          [disabled]="!canSubmit() || loading()">
+          {{ loading() ? 'Connexion en cours…' : 'Se connecter' }}
+        </app-btn>
+
+        @if (!canSubmit() && !loading()) {
+          <div class="auth-action__helper" role="note">
+            Renseignez vos identifiants pour continuer.
+          </div>
+        }
+      </div>
     </form>
 
+    <!-- Pied de carte -->
     <div class="auth-page__footer">
       <span>Vous n'avez pas de compte ? </span>
-      <a routerLink="/inscription">S'inscrire gratuitement</a>
+      <a routerLink="/inscription">Créer un compte</a>
     </div>
   </div>
 </main>

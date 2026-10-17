@@ -62,10 +62,11 @@
     display: flex;
     align-items: center;
     gap: var(--space-md);
-    background-color: #FDF6EC;
+    background-color: var(--color-tint-light);
     padding: var(--space-md) var(--space-lg);
     border-radius: var(--radius-lg);
-    color: #C27A1A;
+    border: 1px solid var(--color-border);
+    color: var(--color-primary);
 
     .register-page__steps-title {
       font-weight: var(--font-weight-semibold);
@@ -123,13 +124,13 @@
     }
 
     &:focus-visible {
-      outline: 2px solid #6B2D3C;
+      outline: 3px solid var(--color-accent);
       outline-offset: 2px;
     }
 
     &--selected {
-      border-color: #6B2D3C;
-      background-color: #F5E6EA;
+      border-color: var(--color-primary);
+      background-color: var(--color-tint-light);
     }
   }
 
@@ -146,7 +147,7 @@
     flex-shrink: 0;
 
     &--active {
-      background-color: #6B2D3C;
+      background-color: var(--color-primary);
       color: #fff;
     }
   }
@@ -179,7 +180,7 @@
     position: absolute;
     top: 14px;
     right: 14px;
-    color: #6B2D3C;
+    color: var(--color-primary);
   }
 
   &__method-chevron {
@@ -336,14 +337,14 @@
       min-width: 22px;
       min-height: 22px;
       margin: 0;
-      accent-color: #6B2D3C;
+      accent-color: var(--color-primary);
       cursor: pointer;
       border-radius: 4px;
       outline-offset: 2px;
       padding: 2px;
 
       &:focus-visible {
-        outline: 2px solid #6B2D3C;
+        outline: 3px solid var(--color-accent);
         outline-offset: 2px;
       }
     }
@@ -373,9 +374,9 @@
 
     // Styling disabled state with WCAG AA compliance (dark bordeaux-gray with crisp white text)
     ::ng-deep .btn:disabled {
-      background: #7D5C65 !important;
-      color: #FFFFFF !important;
-      opacity: 1 !important;
+      background: var(--color-text-secondary) !important;
+      color: var(--color-surface) !important;
+      opacity: 0.8 !important;
       border-color: transparent !important;
       cursor: not-allowed;
     }
@@ -403,7 +404,7 @@
     transition: all var(--transition-base, 250ms ease);
 
     &:focus-visible {
-      border-color: #6B2D3C;
+      border-color: var(--color-primary);
     }
   }
 
@@ -420,8 +421,8 @@
     display: inline-flex;
     align-items: center;
     padding: 4px 12px;
-    background-color: #F5E6EA;
-    color: #6B2D3C;
+    background-color: var(--color-tint-light);
+    color: var(--color-primary);
     border-radius: var(--radius-full);
     font-size: var(--font-size-xs);
     font-weight: 600;
@@ -512,24 +513,24 @@
     }
 
     &:hover {
-      border-color: #6B2D3C;
+      border-color: var(--color-primary);
     }
 
     &:focus-visible {
-      outline: 2px solid #6B2D3C;
+      outline: 3px solid var(--color-accent);
       outline-offset: 2px;
     }
 
     &--selected {
-      border-color: #6B2D3C;
-      background-color: #F5E6EA;
+      border-color: var(--color-primary);
+      background-color: var(--color-tint-light);
 
       app-icon {
-        color: #6B2D3C;
+        color: var(--color-primary);
       }
 
       strong {
-        color: #6B2D3C;
+        color: var(--color-primary);
       }
     }
   }
@@ -570,7 +571,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid #6B2D3C;
+      outline: 3px solid var(--color-accent);
     }
   }
 
@@ -619,17 +620,17 @@
     transition: all var(--transition-fast);
 
     &:hover {
-      border-color: #6B2D3C;
+      border-color: var(--color-primary);
     }
 
     &:focus-visible {
-      outline: 2px solid #6B2D3C;
+      outline: 3px solid var(--color-accent);
       outline-offset: 2px;
     }
 
     &--active {
-      border-color: #6B2D3C;
-      background-color: #6B2D3C;
+      border-color: var(--color-primary);
+      background-color: var(--color-primary);
       color: #fff;
     }
   }
@@ -651,8 +652,8 @@
     align-items: center;
     gap: 6px;
     padding: 4px 10px;
-    background-color: #F5E6EA;
-    color: #6B2D3C;
+    background-color: var(--color-tint-light);
+    color: var(--color-primary);
     font-size: var(--font-size-xs);
     font-weight: 600;
     border-radius: var(--radius-full);
@@ -661,7 +662,7 @@
   &__chip-remove {
     background: none;
     border: none;
-    color: #6B2D3C;
+    color: var(--color-primary);
     cursor: pointer;
     padding: 0;
     display: flex;
@@ -670,7 +671,7 @@
     border-radius: 50%;
 
     &:hover {
-      background-color: rgba(107, 45, 60, 0.15);
+      background-color: var(--color-border);
     }
   }
 
@@ -698,9 +699,9 @@
     transition: all var(--transition-fast);
 
     &:hover {
-      border-color: #6B2D3C;
-      color: #6B2D3C;
-      background-color: #F5E6EA;
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      background-color: var(--color-tint-light);
     }
   }
 
@@ -724,8 +725,8 @@
 
   &__missing-hint {
     font-size: var(--font-size-xs);
-    color: #B45309;
-    background-color: #FEF3C7;
+    color: var(--color-warning);
+    background-color: var(--color-warning-light);
     padding: 4px 10px;
     border-radius: var(--radius-sm);
   }
@@ -840,7 +841,7 @@
     width: 28px;
     height: 28px;
     border: 3px solid var(--color-border);
-    border-top-color: #6B2D3C;
+    border-top-color: var(--color-primary);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
     margin-top: var(--space-sm);
@@ -865,3 +866,4 @@
     }
   }
 }
+

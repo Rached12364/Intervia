@@ -1,7 +1,7 @@
 import { Component, inject, signal, computed, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { FormFieldComponent } from '../../shared/components/form-field/form-field.component';
@@ -39,6 +39,7 @@ export class InscriptionComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   @ViewChild('stepContainer') stepContainer?: ElementRef<HTMLElement>;
 
@@ -121,7 +122,7 @@ export class InscriptionComponent implements OnInit {
   // Password strength evaluation
   passwordStrength = computed(() => {
     const pwd = this.step1Form.get('password')?.value || '';
-    if (!pwd) return { score: 0, label: 'Vide', color: '#E5E7EB' };
+    if (!pwd) return { score: 0, label: 'Vide', color: 'var(--color-border)' };
     let score = 0;
     if (pwd.length >= 8) score++;
     if (/[A-Z]/.test(pwd)) score++;
@@ -130,14 +131,14 @@ export class InscriptionComponent implements OnInit {
 
     switch (score) {
       case 1:
-        return { score: 1, label: 'Faible', color: '#EF4444' };
+        return { score: 1, label: 'Faible', color: 'var(--color-error)' };
       case 2:
-        return { score: 2, label: 'Moyen', color: '#F59E0B' };
+        return { score: 2, label: 'Moyen', color: 'var(--color-warning)' };
       case 3:
-        return { score: 3, label: 'Bon', color: '#10B981' };
+        return { score: 3, label: 'Bon', color: 'var(--color-success)' };
       case 4:
       default:
-        return { score: 4, label: 'Très fort', color: '#059669' };
+        return { score: 4, label: 'Très fort', color: 'var(--color-success)' };
     }
   });
 
@@ -187,6 +188,12 @@ export class InscriptionComponent implements OnInit {
     if (!this.step3Form.get('availability')?.value) {
       const today = new Date().toISOString().split('T')[0];
       this.step3Form.patchValue({ availability: today });
+    }
+
+    // Read profil query param (from Hello page: ?profil=stage or ?profil=emploi)
+    const profilParam = this.route.snapshot.queryParamMap.get('profil');
+    if (profilParam === 'stage' || profilParam === 'emploi') {
+      this.step1Form.patchValue({ profileType: profilParam });
     }
   }
 
@@ -289,9 +296,9 @@ export class InscriptionComponent implements OnInit {
       this.isLinkedInConnected.set(true);
       // Pre-fill profile
       this.step1Form.patchValue({
-        firstName: 'Yassine',
+        firstName: 'Mohamed',
         lastName: 'Ben Salem',
-        email: 'yassine.bensalem@linkedin-demo.tn',
+        email: 'mohamed.bensalem@linkedin-demo.tn',
         password: 'Password123!',
         confirmPassword: 'Password123!',
         profileType: 'emploi'
@@ -306,7 +313,7 @@ export class InscriptionComponent implements OnInit {
       this.step3Form.patchValue({
         targetRole: 'Ingénieur Études et Développement Angular',
         contractType: 'CDI',
-        linkedInUrl: 'https://linkedin.com/in/yassine-bensalem'
+        linkedInUrl: 'https://linkedin.com/in/mohamed-bensalem'
       });
       this.skillsList.set(['Angular', 'TypeScript', 'Node.js', 'RxJS', 'Git']);
       this.saveDraft();
@@ -356,9 +363,9 @@ export class InscriptionComponent implements OnInit {
     this.uploadedFile.set(file);
     // Auto fill step 1 & 2 basics from CV
     this.step1Form.patchValue({
-      firstName: 'Yassine',
+      firstName: 'Mohamed',
       lastName: 'Ben Salem',
-      email: 'yassine.bensalem@etudiant.tn'
+      email: 'mohamed.bensalem@etudiant.tn'
     });
     this.saveDraft();
   }
@@ -417,3 +424,4 @@ export class InscriptionComponent implements OnInit {
     });
   }
 }
+

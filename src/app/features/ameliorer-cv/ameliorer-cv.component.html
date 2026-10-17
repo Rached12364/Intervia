@@ -1,0 +1,899 @@
+<app-navbar></app-navbar>
+
+<main class="cv-page">
+  <div class="cv-page__container">
+    <!-- Top Stepper Header -->
+    <header class="cv-page__header">
+      <div class="cv-page__header-top">
+        <div>
+          <span class="cv-page__kicker">OPTIMISATION PAR L'IA</span>
+          <h1 class="cv-page__title">Améliorer mon CV ou mon profil LinkedIn</h1>
+          <p class="cv-page__subtitle">Un regard bienveillant et constructif pour valoriser vos compétences sans stress.</p>
+        </div>
+
+        <div class="cv-page__header-actions">
+          <button class="cv-page__saved-toggle" (click)="showSavedDrawer.set(!showSavedDrawer())" [attr.aria-expanded]="showSavedDrawer()">
+            <app-icon name="history" aria-hidden="true" />
+            <span>Mes analyses ({{ savedAnalysesList().length }})</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Stepper Progress Bar -->
+      <nav class="cv-page__stepper" aria-label="Progression du parcours d'amélioration">
+        <div class="cv-page__stepper-bar">
+          <div class="cv-page__stepper-fill" [style.width.%]="(currentStep() / 4) * 100"></div>
+        </div>
+        <div class="cv-page__stepper-steps">
+          <div class="cv-page__step-item" [class.cv-page__step-item--active]="currentStep() === 1" [class.cv-page__step-item--done]="currentStep() > 1">
+            <span class="cv-page__step-number">1</span>
+            <span class="cv-page__step-label">Contenu</span>
+          </div>
+          <div class="cv-page__step-item" [class.cv-page__step-item--active]="currentStep() === 2" [class.cv-page__step-item--done]="currentStep() > 2">
+            <span class="cv-page__step-number">2</span>
+            <span class="cv-page__step-label">Analyse IA</span>
+          </div>
+          <div class="cv-page__step-item" [class.cv-page__step-item--active]="currentStep() === 3" [class.cv-page__step-item--done]="currentStep() > 3">
+            <span class="cv-page__step-number">3</span>
+            <span class="cv-page__step-label">Diagnostic</span>
+          </div>
+          <div class="cv-page__step-item" [class.cv-page__step-item--active]="currentStep() === 4">
+            <span class="cv-page__step-number">4</span>
+            <span class="cv-page__step-label">Version corrigée</span>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Global Error banner (aria-live) -->
+    @if (globalError()) {
+      <div class="cv-page__alert cv-page__alert--error" role="alert" aria-live="polite">
+        <app-icon name="error_outline" aria-hidden="true" />
+        <span>{{ globalError() }}</span>
+      </div>
+    }
+
+    <!-- Toast messages -->
+    @if (copySuccess()) {
+      <div class="cv-page__toast" role="status" aria-live="polite">
+        <app-icon name="check_circle" aria-hidden="true" />
+        <span>Texte copié dans votre presse-papier !</span>
+      </div>
+    }
+    @if (saveSuccess()) {
+      <div class="cv-page__toast" role="status" aria-live="polite">
+        <app-icon name="check_circle" aria-hidden="true" />
+        <span>Analyse enregistrée dans « Mes analyses » !</span>
+      </div>
+    }
+
+    <!-- ============================================================= -->
+    <!-- ÉTAPE 1 : QUE SOUHAITEZ-VOUS AMÉLIORER ?                       -->
+    <!-- ============================================================= -->
+    @if (currentStep() === 1) {
+      <section class="cv-page__step-content animate-fade-in" aria-labelledby="step1-title">
+        <h2 id="step1-title" class="cv-page__section-title">Étape 1 sur 4 : Que souhaitez-vous améliorer ?</h2>
+
+        <!-- Choice Cards: Mon CV vs Mon profil LinkedIn -->
+        <div class="cv-page__type-grid" role="radiogroup" aria-label="Choisir le type de document à analyser">
+          <div
+            class="cv-page__type-card"
+            [class.cv-page__type-card--selected]="docType() === 'cv'"
+            (click)="setDocType('cv')"
+            role="radio"
+            [attr.aria-checked]="docType() === 'cv'"
+            tabindex="0"
+            (keydown.enter)="setDocType('cv')"
+            (keydown.space)="setDocType('cv'); $event.preventDefault()">
+            <div class="cv-page__type-icon">
+              <app-icon name="description" [size]="28" aria-hidden="true" />
+            </div>
+            <div class="cv-page__type-body">
+              <h3>Mon CV</h3>
+              <p>Fichier PDF, DOCX, TXT ou texte copié de votre CV complet.</p>
+            </div>
+            @if (docType() === 'cv') {
+              <div class="cv-page__type-check">
+                <app-icon name="check_circle" aria-hidden="true" />
+              </div>
+            }
+          </div>
+
+          <div
+            class="cv-page__type-card"
+            [class.cv-page__type-card--selected]="docType() === 'linkedin'"
+            (click)="setDocType('linkedin')"
+            role="radio"
+            [attr.aria-checked]="docType() === 'linkedin'"
+            tabindex="0"
+            (keydown.enter)="setDocType('linkedin')"
+            (keydown.space)="setDocType('linkedin'); $event.preventDefault()">
+            <div class="cv-page__type-icon">
+              <app-icon name="badge" [size]="28" aria-hidden="true" />
+            </div>
+            <div class="cv-page__type-body">
+              <h3>Mon profil LinkedIn</h3>
+              <p>Titre, résumé « À propos » et vos expériences clés.</p>
+            </div>
+            @if (docType() === 'linkedin') {
+              <div class="cv-page__type-check">
+                <app-icon name="check_circle" aria-hidden="true" />
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- ==================== CV INPUT MODES ==================== -->
+        @if (docType() === 'cv') {
+          <div class="cv-page__panel">
+            <!-- Tabs -->
+            <div class="cv-page__tabs" role="tablist" aria-label="Méthode d'importation du CV">
+              <button
+                class="cv-page__tab"
+                [class.cv-page__tab--active]="cvInputMethod() === 'upload'"
+                (click)="setCvInputMethod('upload')"
+                role="tab"
+                [attr.aria-selected]="cvInputMethod() === 'upload'">
+                <app-icon name="cloud_upload" aria-hidden="true" />
+                <span>Importer un fichier</span>
+              </button>
+              <button
+                class="cv-page__tab"
+                [class.cv-page__tab--active]="cvInputMethod() === 'paste'"
+                (click)="setCvInputMethod('paste')"
+                role="tab"
+                [attr.aria-selected]="cvInputMethod() === 'paste'">
+                <app-icon name="edit_note" aria-hidden="true" />
+                <span>Coller le texte du CV</span>
+              </button>
+              <button
+                class="cv-page__tab"
+                [class.cv-page__tab--active]="cvInputMethod() === 'demo'"
+                (click)="setCvInputMethod('demo')"
+                role="tab"
+                [attr.aria-selected]="cvInputMethod() === 'demo'">
+                <app-icon name="auto_awesome" aria-hidden="true" />
+                <span>CV de démonstration</span>
+              </button>
+            </div>
+
+            <!-- Tab 1: Upload File -->
+            @if (cvInputMethod() === 'upload') {
+              <div class="cv-page__tab-body">
+                @if (!uploadedFile()) {
+                  <div
+                    class="cv-page__dropzone"
+                    [class.cv-page__dropzone--dragover]="isDragOver()"
+                    (dragover)="onDragOver($event)"
+                    (dragleave)="onDragLeave($event)"
+                    (drop)="onDrop($event)"
+                    (click)="fileInput.click()"
+                    role="button"
+                    tabindex="0"
+                    (keydown.enter)="fileInput.click()"
+                    aria-label="Zone de dépôt de votre CV : cliquez ou glissez-déposez un fichier PDF, DOCX ou TXT">
+                    <app-icon name="cloud_upload" [size]="36" aria-hidden="true" />
+                    <p class="cv-page__dropzone-title">Glissez votre CV ici ou <strong>cliquez pour parcourir</strong></p>
+                    <span class="cv-page__dropzone-hint">Formats acceptés : PDF, DOCX ou TXT (5 Mo maximum)</span>
+                    <input #fileInput type="file" accept=".pdf,.docx,.txt" (change)="onFileInputChange($event)" hidden />
+                  </div>
+                } @else {
+                  <div class="cv-page__file-card">
+                    <div class="cv-page__file-icon">
+                      <app-icon name="description" [size]="28" aria-hidden="true" />
+                    </div>
+                    <div class="cv-page__file-info">
+                      <span class="cv-page__file-name">{{ uploadedFile()!.name }}</span>
+                      <span class="cv-page__file-size">{{ formatFileSize(uploadedFile()!.size) }}</span>
+                    </div>
+                    <button class="cv-page__file-remove" (click)="removeUploadedFile()" title="Retirer ce fichier" aria-label="Retirer ce fichier">
+                      <app-icon name="close" aria-hidden="true" />
+                    </button>
+                  </div>
+                }
+
+                @if (fileError()) {
+                  <div class="cv-page__alert cv-page__alert--warning" role="alert" aria-live="polite">
+                    <app-icon name="info" aria-hidden="true" />
+                    <div>
+                      <p>{{ fileError() }}</p>
+                      <button class="cv-page__inline-link" (click)="setCvInputMethod('paste')">
+                        Passer à l'onglet « Coller le texte du CV »
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Tab 2: Paste Text -->
+            @if (cvInputMethod() === 'paste') {
+              <div class="cv-page__tab-body">
+                <label for="cv-textarea" class="cv-page__field-label">
+                  Contenu de votre CV
+                  <span class="cv-page__field-counter" [class.cv-page__field-counter--valid]="cvCharCount() >= 300">
+                    {{ cvCharCount() }} / 300 caractères minimum
+                  </span>
+                </label>
+                <textarea
+                  id="cv-textarea"
+                  class="cv-page__textarea"
+                  rows="11"
+                  placeholder="Collez ici l'intégralité du texte de votre CV (coordonnées, résumé, expériences, formation, compétences, projets)..."
+                  [ngModel]="pastedCvText()"
+                  (ngModelChange)="pastedCvText.set($event)"></textarea>
+              </div>
+            }
+
+            <!-- Tab 3: Demo CV -->
+            @if (cvInputMethod() === 'demo') {
+              <div class="cv-page__tab-body">
+                <div class="cv-page__demo-banner">
+                  <app-icon name="verified" aria-hidden="true" />
+                  <div>
+                    <h4>CV de démonstration chargé</h4>
+                    <p>Mohamed Ben Ali — Étudiant en cycle ingénieur à l'INSAT Tunis (profil frontend Angular &amp; TypeScript).</p>
+                  </div>
+                  <button class="cv-page__demo-reload" (click)="loadDemoCv()">Recharger</button>
+                </div>
+                <label for="cv-demo-textarea" class="cv-page__field-label">
+                  Aperçu du CV de démonstration (modifiable)
+                  <span class="cv-page__field-counter cv-page__field-counter--valid">{{ cvCharCount() }} caractères</span>
+                </label>
+                <textarea
+                  id="cv-demo-textarea"
+                  class="cv-page__textarea"
+                  rows="11"
+                  [ngModel]="pastedCvText()"
+                  (ngModelChange)="pastedCvText.set($event)"></textarea>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- ==================== LINKEDIN INPUT MODES ==================== -->
+        @if (docType() === 'linkedin') {
+          <div class="cv-page__panel">
+            <div class="cv-page__linkedin-notice">
+              <app-icon name="info" aria-hidden="true" />
+              <div>
+                <strong>Confidentialité garantie :</strong> Nous ne lisons pas votre profil en ligne directement. Copiez-collez simplement les sections ci-dessous pour que l'IA puisse les analyser.
+              </div>
+              <button class="cv-page__demo-btn" (click)="loadDemoLinkedIn()">
+                <app-icon name="auto_awesome" aria-hidden="true" />
+                <span>Charger un profil LinkedIn fictif</span>
+              </button>
+            </div>
+
+            <!-- Optional Profile URL -->
+            <div class="cv-page__form-group">
+              <label for="linkedin-url" class="cv-page__field-label">
+                Adresse de votre profil LinkedIn <span class="cv-page__field-optional">(facultatif — jamais consultée en ligne)</span>
+              </label>
+              <input
+                id="linkedin-url"
+                type="text"
+                class="cv-page__input"
+                placeholder="https://www.linkedin.com/in/votre-nom"
+                [ngModel]="linkedinUrl()"
+                (ngModelChange)="linkedinUrl.set($event)" />
+            </div>
+
+            <!-- Section 1: Titre -->
+            <div class="cv-page__form-group">
+              <label for="linkedin-title" class="cv-page__field-label">Titre professionnel de votre profil</label>
+              <input
+                id="linkedin-title"
+                type="text"
+                class="cv-page__input"
+                placeholder="Ex. : Étudiant Ingénieur Logiciel | Développeur Frontend Angular & TypeScript | Recherche Stage PFE"
+                [ngModel]="linkedinTitle()"
+                (ngModelChange)="linkedinTitle.set($event)" />
+            </div>
+
+            <!-- Section 2: À propos -->
+            <div class="cv-page__form-group">
+              <label for="linkedin-about" class="cv-page__field-label">Section « À propos » (Résumé)</label>
+              <textarea
+                id="linkedin-about"
+                class="cv-page__textarea"
+                rows="4"
+                placeholder="Collez ici la section de présentation générale de votre profil LinkedIn..."
+                [ngModel]="linkedinAbout()"
+                (ngModelChange)="linkedinAbout.set($event)"></textarea>
+            </div>
+
+            <!-- Section 3: Expériences -->
+            <div class="cv-page__form-group">
+              <label for="linkedin-exp" class="cv-page__field-label">Section « Expériences »</label>
+              <textarea
+                id="linkedin-exp"
+                class="cv-page__textarea"
+                rows="5"
+                placeholder="Collez ici les descriptifs de vos expériences clés (stages, projets, alternances)..."
+                [ngModel]="linkedinExperiences()"
+                (ngModelChange)="linkedinExperiences.set($event)"></textarea>
+            </div>
+          </div>
+        }
+
+        <!-- Target Role & Offer alignment (Common) -->
+        <div class="cv-page__alignment-card">
+          <div class="cv-page__alignment-header">
+            <app-icon name="work" aria-hidden="true" />
+            <div>
+              <h3>Ciblage professionnel <span class="cv-page__field-optional">(facultatif mais fortement recommandé)</span></h3>
+              <p>Indiquez le poste que vous visez pour adapter les mots-clés et l'argumentation.</p>
+            </div>
+          </div>
+
+          <div class="cv-page__alignment-fields">
+            <div class="cv-page__form-group">
+              <label for="target-role-input" class="cv-page__field-label">Poste visé</label>
+              <input
+                id="target-role-input"
+                type="text"
+                class="cv-page__input"
+                placeholder="Ex. : Développeur Frontend Angular, Ingénieur Cloud, Stage PFE..."
+                [ngModel]="targetRole()"
+                (ngModelChange)="targetRole.set($event)" />
+            </div>
+
+            @if (availableOffers().length > 0) {
+              <div class="cv-page__form-group">
+                <label for="target-offer-select" class="cv-page__field-label">Adapter à une offre partenaire IntervIA</label>
+                <select
+                  id="target-offer-select"
+                  class="cv-page__select"
+                  [value]="selectedOfferId()"
+                  (change)="onOfferSelect($event)">
+                  <option value="">-- Aucune offre spécifique sélectionnée --</option>
+                  @for (offer of availableOffers(); track offer.id) {
+                    <option [value]="offer.id">{{ offer.title }} ({{ offer.company }} — {{ offer.type }})</option>
+                  }
+                </select>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Privacy & Reassurance Banner -->
+        <div class="cv-page__reassurance">
+          <app-icon name="shield" aria-hidden="true" />
+          <span>Votre contenu reste sur votre appareil pendant cette démonstration. Aucune donnée n'est transmise à des tiers sans votre accord explicite.</span>
+        </div>
+
+        <!-- Submit Action Button -->
+        <div class="cv-page__cta-wrapper">
+          <app-btn
+            variant="primary"
+            size="lg"
+            icon="auto_awesome"
+            [disabled]="!canSubmit()"
+            (onClick)="startAnalysis()">
+            Analyser avec l'IA
+          </app-btn>
+          <p class="cv-page__cta-helper" [class.cv-page__cta-helper--ready]="canSubmit()">
+            {{ submitHelpText() }}
+          </p>
+        </div>
+      </section>
+    }
+
+    <!-- ============================================================= -->
+    <!-- ÉTAPE 2 : ANALYSE (ÉCRAN D'ATTENTE APAISANT)                   -->
+    <!-- ============================================================= -->
+    @if (currentStep() === 2) {
+      <section class="cv-page__waiting-card animate-fade-in" aria-live="polite">
+        <app-ia-avatar size="l" state="thinking" [decorative]="true"></app-ia-avatar>
+
+        <h2 class="cv-page__waiting-title">Votre recruteuse IA analyse votre parcours…</h2>
+        <p class="cv-page__waiting-subtitle">Prenez une respiration, nous identifions vos points forts et préparons des conseils concrets.</p>
+
+        <div class="cv-page__checklist">
+          <!-- Item 1 -->
+          <div class="cv-page__check-item" [class.cv-page__check-item--done]="analysisProgressStep() >= 1">
+            <div class="cv-page__check-icon">
+              @if (analysisProgressStep() >= 1) {
+                <app-icon name="check_circle" aria-hidden="true" />
+              } @else {
+                <div class="cv-page__spinner"></div>
+              }
+            </div>
+            <span>Lecture de votre document</span>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="cv-page__check-item" [class.cv-page__check-item--done]="analysisProgressStep() >= 2">
+            <div class="cv-page__check-icon">
+              @if (analysisProgressStep() >= 2) {
+                <app-icon name="check_circle" aria-hidden="true" />
+              } @else if (analysisProgressStep() === 1) {
+                <div class="cv-page__spinner"></div>
+              } @else {
+                <app-icon name="schedule" aria-hidden="true" />
+              }
+            </div>
+            <span>Repérage des sections et compétences</span>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="cv-page__check-item" [class.cv-page__check-item--done]="analysisProgressStep() >= 3">
+            <div class="cv-page__check-icon">
+              @if (analysisProgressStep() >= 3) {
+                <app-icon name="check_circle" aria-hidden="true" />
+              } @else if (analysisProgressStep() === 2) {
+                <div class="cv-page__spinner"></div>
+              } @else {
+                <app-icon name="schedule" aria-hidden="true" />
+              }
+            </div>
+            <span>Évaluation et recommandations sur mesure</span>
+          </div>
+        </div>
+
+        <div class="cv-page__waiting-badge">
+          <app-icon name="verified" aria-hidden="true" />
+          <span>Analyse simulée dans cette démonstration</span>
+        </div>
+      </section>
+    }
+
+    <!-- ============================================================= -->
+    <!-- ÉTAPE 3 : « VOICI MON ANALYSE » (DIAGNOSTIC DÉTAILLÉ)          -->
+    <!-- ============================================================= -->
+    @if (currentStep() === 3 && analysisResult(); as res) {
+      <section class="cv-page__step-content animate-fade-in" aria-labelledby="step3-title">
+        <div class="cv-page__header-step3">
+          <div>
+            <h2 id="step3-title" class="cv-page__section-title">Étape 3 sur 4 : Voici mon analyse</h2>
+            <p class="cv-page__subtitle">Un bilan complet de votre {{ res.type === 'linkedin' ? 'profil LinkedIn' : 'CV' }} avec des pistes concrètes d'amélioration.</p>
+          </div>
+
+          <div class="cv-page__step3-actions">
+            <app-btn variant="ghost" size="md" icon="edit" (onClick)="goToStep(1)">
+              Modifier mes informations
+            </app-btn>
+            <app-btn variant="primary" size="md" icon="arrow_forward" (onClick)="goToStep(4)">
+              Voir ma version corrigée
+            </app-btn>
+          </div>
+        </div>
+
+        <!-- AI Assistant Encouragement Card -->
+        <div class="cv-page__avatar-banner">
+          <app-ia-avatar size="m" state="idle" [decorative]="true"></app-ia-avatar>
+          <div class="cv-page__avatar-banner-content">
+            <span class="cv-page__avatar-banner-kicker">MOT DE VOTRE RECRUTEUSE IA</span>
+            <p class="cv-page__avatar-quote">« {{ res.encouragingQuote }} »</p>
+          </div>
+        </div>
+
+        <!-- Scores & 5 Criteria Breakdown -->
+        <div class="cv-page__overview-grid">
+          <!-- Global Score Card -->
+          <div class="cv-page__score-card">
+            <span class="cv-page__score-kicker">SCORE GLOBAL ESTIMÉ</span>
+            <div class="cv-page__big-score">
+              <span class="cv-page__score-number">{{ res.globalScore }}</span>
+              <span class="cv-page__score-denom">/ 100</span>
+            </div>
+            <p class="cv-page__score-desc">{{ res.scoreExplanation }}</p>
+            <div class="cv-page__score-badge">
+              <app-icon name="verified" aria-hidden="true" />
+              <span>Diagnostic bienveillant</span>
+            </div>
+          </div>
+
+          <!-- 5 Criteria Bars -->
+          <div class="cv-page__criteria-card">
+            <h3 class="cv-page__card-title">Évaluation par critère clé</h3>
+
+            <div class="cv-page__criteria-list">
+              <!-- Critère 1: Structure -->
+              <div class="cv-page__criterion">
+                <div class="cv-page__criterion-header">
+                  <span class="cv-page__criterion-label">Structure &amp; Organisation</span>
+                  <span class="cv-page__criterion-val">{{ res.criteria.structure }}%</span>
+                </div>
+                <div class="cv-page__bar-track" role="progressbar" [attr.aria-valuenow]="res.criteria.structure" aria-valuemin="0" aria-valuemax="100">
+                  <div class="cv-page__bar-fill" [style.width.%]="res.criteria.structure"></div>
+                </div>
+              </div>
+
+              <!-- Critère 2: Contenu -->
+              <div class="cv-page__criterion">
+                <div class="cv-page__criterion-header">
+                  <span class="cv-page__criterion-label">Contenu &amp; Précision</span>
+                  <span class="cv-page__criterion-val">{{ res.criteria.contenu }}%</span>
+                </div>
+                <div class="cv-page__bar-track" role="progressbar" [attr.aria-valuenow]="res.criteria.contenu" aria-valuemin="0" aria-valuemax="100">
+                  <div class="cv-page__bar-fill" [style.width.%]="res.criteria.contenu"></div>
+                </div>
+              </div>
+
+              <!-- Critère 3: Résultats chiffrés -->
+              <div class="cv-page__criterion">
+                <div class="cv-page__criterion-header">
+                  <span class="cv-page__criterion-label">Résultats chiffrés &amp; Métriques</span>
+                  <span class="cv-page__criterion-val">{{ res.criteria.chiffres }}%</span>
+                </div>
+                <div class="cv-page__bar-track" role="progressbar" [attr.aria-valuenow]="res.criteria.chiffres" aria-valuemin="0" aria-valuemax="100">
+                  <div class="cv-page__bar-fill" [style.width.%]="res.criteria.chiffres"></div>
+                </div>
+              </div>
+
+              <!-- Critère 4: Mots-clés -->
+              <div class="cv-page__criterion">
+                <div class="cv-page__criterion-header">
+                  <span class="cv-page__criterion-label">Mots-clés &amp; Compétences ciblées</span>
+                  <span class="cv-page__criterion-val">{{ res.criteria.motsCles }}%</span>
+                </div>
+                <div class="cv-page__bar-track" role="progressbar" [attr.aria-valuenow]="res.criteria.motsCles" aria-valuemin="0" aria-valuemax="100">
+                  <div class="cv-page__bar-fill" [style.width.%]="res.criteria.motsCles"></div>
+                </div>
+              </div>
+
+              <!-- Critère 5: Lisibilité -->
+              <div class="cv-page__criterion">
+                <div class="cv-page__criterion-header">
+                  <span class="cv-page__criterion-label">Lisibilité &amp; Clarté</span>
+                  <span class="cv-page__criterion-val">{{ res.criteria.lisibilite }}%</span>
+                </div>
+                <div class="cv-page__bar-track" role="progressbar" [attr.aria-valuenow]="res.criteria.lisibilite" aria-valuemin="0" aria-valuemax="100">
+                  <div class="cv-page__bar-fill" [style.width.%]="res.criteria.lisibilite"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detected sections -->
+        <div class="cv-page__detected-card">
+          <span class="cv-page__card-kicker">SECTIONS RECONNUES PAR L'IA</span>
+          <div class="cv-page__pills-wrap">
+            @for (sec of res.detectedSections; track sec) {
+              <span class="cv-page__section-pill">
+                <app-icon name="check_circle" aria-hidden="true" />
+                <span>{{ sec }}</span>
+              </span>
+            }
+          </div>
+        </div>
+
+        <!-- Strengths (Points forts) -->
+        <div class="cv-page__strengths-card">
+          <h3 class="cv-page__card-title">
+            <app-icon name="verified" aria-hidden="true" />
+            Vos Points Forts
+          </h3>
+          <ul class="cv-page__strengths-list">
+            @for (strength of res.strengths; track strength) {
+              <li class="cv-page__strength-item">
+                <app-icon name="check" aria-hidden="true" />
+                <span>{{ strength }}</span>
+              </li>
+            }
+          </ul>
+        </div>
+
+        <!-- Prioritized Recommendations List -->
+        <div class="cv-page__recommendations-section">
+          <h3 class="cv-page__card-title">
+            <app-icon name="checklist" aria-hidden="true" />
+            Recommandations d'Amélioration Priorisées
+          </h3>
+          <p class="cv-page__recs-desc">
+            Cochez les suggestions que vous souhaitez intégrer dans votre version corrigée à l'étape suivante.
+          </p>
+
+          <div class="cv-page__recs-list">
+            @for (rec of res.recommendations; track rec.id) {
+              <div class="cv-page__rec-card" [class.cv-page__rec-card--applied]="rec.applied">
+                <div class="cv-page__rec-header">
+                  <div class="cv-page__rec-meta">
+                    <span class="cv-page__rec-priority cv-page__rec-priority--{{ rec.priority }}">
+                      Priorité {{ rec.priority }}
+                    </span>
+                    @if (rec.section) {
+                      <span class="cv-page__rec-section">Section : {{ rec.section }}</span>
+                    }
+                  </div>
+
+                  <!-- Checkbox toggle -->
+                  <label class="cv-page__rec-toggle">
+                    <input
+                      type="checkbox"
+                      [checked]="rec.applied"
+                      (change)="toggleRecommendation(rec)" />
+                    <span>Appliquer cette suggestion</span>
+                  </label>
+                </div>
+
+                <h4 class="cv-page__rec-title">{{ rec.title }}</h4>
+                <p class="cv-page__rec-constat"><strong>Constat :</strong> {{ rec.constat }}</p>
+                <p class="cv-page__rec-importance"><strong>Pourquoi c'est important :</strong> {{ rec.importance }}</p>
+
+                @if (rec.beforeExample && rec.afterExample) {
+                  <div class="cv-page__diff-preview">
+                    <div class="cv-page__diff-block cv-page__diff-block--before">
+                      <span class="cv-page__diff-tag">Avant :</span>
+                      <p>{{ rec.beforeExample }}</p>
+                    </div>
+                    <div class="cv-page__diff-block cv-page__diff-block--after">
+                      <span class="cv-page__diff-tag">Après recommandé :</span>
+                      <p>{{ rec.afterExample }}</p>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Bottom Action CTA -->
+        <div class="cv-page__bottom-nav">
+          <app-btn variant="secondary" size="lg" icon="edit" (onClick)="goToStep(1)">
+            Modifier mes informations
+          </app-btn>
+          <app-btn variant="primary" size="lg" icon="arrow_forward" (onClick)="goToStep(4)">
+            Passer à ma version corrigée
+          </app-btn>
+        </div>
+      </section>
+    }
+
+    <!-- ============================================================= -->
+    <!-- ÉTAPE 4 : « MA VERSION CORRIGÉE » (DIFF, ACTIONS, EXPORTS)     -->
+    <!-- ============================================================= -->
+    @if (currentStep() === 4 && analysisResult(); as res) {
+      <section class="cv-page__step-content animate-fade-in" aria-labelledby="step4-title">
+        <div class="cv-page__header-step4">
+          <div>
+            <h2 id="step4-title" class="cv-page__section-title">Étape 4 sur 4 : Ma version corrigée</h2>
+            <p class="cv-page__subtitle">Comparez, personnalisez le texte directement, puis exportez votre document final.</p>
+          </div>
+
+          <div class="cv-page__step4-nav-actions">
+            <app-btn variant="ghost" size="sm" icon="arrow_back" (onClick)="goToStep(3)">
+              Retour au diagnostic
+            </app-btn>
+            <app-btn variant="secondary" size="sm" icon="replay" (onClick)="restartWizard()">
+              Recommencer avec un autre document
+            </app-btn>
+          </div>
+        </div>
+
+        <!-- Permanent Simulated Analysis Disclaimer -->
+        <div class="cv-page__disclaimer-banner">
+          <app-icon name="info" aria-hidden="true" />
+          <span>Proposition générée par une analyse simulée : relisez chaque ligne avant de l'utiliser.</span>
+        </div>
+
+        <!-- Placeholders Box: "À compléter par vous (X)" -->
+        @if (missingPlaceholders().length > 0) {
+          <div class="cv-page__placeholders-box" role="region" aria-label="Informations à compléter">
+            <div class="cv-page__placeholders-header">
+              <app-icon name="help_outline" aria-hidden="true" />
+              <h4>À compléter par vous ({{ missingPlaceholders().length }})</h4>
+            </div>
+            <p class="cv-page__placeholders-desc">
+              L'IA n'invente jamais d'expérience ni de chiffre. Remplissez les repères surlignés dans le texte avec vos réalisations réelles :
+            </p>
+            <ul class="cv-page__placeholders-list">
+              @for (item of missingPlaceholders(); track item) {
+                <li class="cv-page__placeholder-item">
+                  <code>{{ item }}</code>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+
+        <!-- Tone Switch & Suggestions recap -->
+        <div class="cv-page__toolbar">
+          <div class="cv-page__tone-selector">
+            <span class="cv-page__toolbar-label">Tonalité rédactionnelle :</span>
+            <div class="cv-page__tone-buttons" role="radiogroup" aria-label="Choisir la tonalité">
+              <button
+                class="cv-page__tone-btn"
+                [class.cv-page__tone-btn--active]="currentTone() === 'sobre'"
+                (click)="setTone('sobre')"
+                role="radio"
+                [attr.aria-checked]="currentTone() === 'sobre'">
+                Sobre &amp; Factuel
+              </button>
+              <button
+                class="cv-page__tone-btn"
+                [class.cv-page__tone-btn--active]="currentTone() === 'dynamique'"
+                (click)="setTone('dynamique')"
+                role="radio"
+                [attr.aria-checked]="currentTone() === 'dynamique'">
+                Dynamique &amp; Orienté Impact
+              </button>
+            </div>
+          </div>
+
+          <div class="cv-page__export-actions">
+            <app-btn variant="secondary" size="sm" icon="content_copy" (onClick)="copyProposedText()">
+              Copier le texte
+            </app-btn>
+            <app-btn variant="secondary" size="sm" icon="download" (onClick)="downloadTxt()">
+              Télécharger en .txt
+            </app-btn>
+            <app-btn variant="secondary" size="sm" icon="print" (onClick)="printPdf()">
+              Imprimer / Enregistrer en PDF
+            </app-btn>
+            <app-btn variant="primary" size="sm" icon="bookmark" (onClick)="saveToMyAnalyses()">
+              Enregistrer dans Mes analyses
+            </app-btn>
+          </div>
+        </div>
+
+        <!-- Two Columns Diff Layout -->
+        <div class="cv-page__diff-layout">
+          <!-- Column 1: Version actuelle -->
+          <div class="cv-page__col cv-page__col--original">
+            <div class="cv-page__col-header">
+              <div class="cv-page__col-badge cv-page__col-badge--original">
+                <app-icon name="history" aria-hidden="true" />
+                <span>Version actuelle</span>
+              </div>
+            </div>
+
+            @if (res.type === 'cv') {
+              <div class="cv-page__text-viewer">
+                <pre class="cv-page__pre">{{ res.originalContent.rawText || pastedCvText() }}</pre>
+              </div>
+            } @else {
+              <div class="cv-page__linkedin-viewer">
+                <div class="cv-page__viewer-section">
+                  <span class="cv-page__viewer-tag">Titre :</span>
+                  <p>{{ res.originalContent.linkedin?.title || linkedinTitle() }}</p>
+                </div>
+                <div class="cv-page__viewer-section">
+                  <span class="cv-page__viewer-tag">À propos :</span>
+                  <p>{{ res.originalContent.linkedin?.about || linkedinAbout() }}</p>
+                </div>
+                <div class="cv-page__viewer-section">
+                  <span class="cv-page__viewer-tag">Expériences :</span>
+                  <pre class="cv-page__pre-sm">{{ res.originalContent.linkedin?.experiences || linkedinExperiences() }}</pre>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Column 2: Version proposée (Editable) -->
+          <div class="cv-page__col cv-page__col--proposed">
+            <div class="cv-page__col-header">
+              <div class="cv-page__col-badge cv-page__col-badge--proposed">
+                <app-icon name="auto_awesome" aria-hidden="true" />
+                <span>Version proposée (modifiable en direct)</span>
+              </div>
+            </div>
+
+            @if (res.type === 'cv') {
+              <div class="cv-page__editor-wrap">
+                <label for="proposed-cv-editor" class="sr-only">Texte proposé par l'IA (modifiable)</label>
+                <textarea
+                  id="proposed-cv-editor"
+                  class="cv-page__textarea cv-page__textarea--editor"
+                  rows="22"
+                  [ngModel]="editableProposedText()"
+                  (ngModelChange)="editableProposedText.set($event)"></textarea>
+              </div>
+            } @else {
+              <div class="cv-page__linkedin-editor">
+                <!-- Titre -->
+                <div class="cv-page__editor-field">
+                  <div class="cv-page__editor-field-header">
+                    <label for="proposed-title-editor" class="cv-page__field-label">Titre proposé</label>
+                    <button class="cv-page__copy-btn" (click)="copyLinkedInSection('title')">
+                      <app-icon name="content_copy" [size]="14" aria-hidden="true" />
+                      <span>Copier le titre</span>
+                    </button>
+                  </div>
+                  <input
+                    id="proposed-title-editor"
+                    type="text"
+                    class="cv-page__input"
+                    [ngModel]="editableLinkedInTitle()"
+                    (ngModelChange)="editableLinkedInTitle.set($event)" />
+                </div>
+
+                <!-- À propos -->
+                <div class="cv-page__editor-field">
+                  <div class="cv-page__editor-field-header">
+                    <label for="proposed-about-editor" class="cv-page__field-label">À propos proposé</label>
+                    <button class="cv-page__copy-btn" (click)="copyLinkedInSection('about')">
+                      <app-icon name="content_copy" [size]="14" aria-hidden="true" />
+                      <span>Copier « À propos »</span>
+                    </button>
+                  </div>
+                  <textarea
+                    id="proposed-about-editor"
+                    class="cv-page__textarea"
+                    rows="6"
+                    [ngModel]="editableLinkedInAbout()"
+                    (ngModelChange)="editableLinkedInAbout.set($event)"></textarea>
+                </div>
+
+                <!-- Expériences -->
+                <div class="cv-page__editor-field">
+                  <div class="cv-page__editor-field-header">
+                    <label for="proposed-exp-editor" class="cv-page__field-label">Expériences proposées</label>
+                    <button class="cv-page__copy-btn" (click)="copyLinkedInSection('experiences')">
+                      <app-icon name="content_copy" [size]="14" aria-hidden="true" />
+                      <span>Copier les expériences</span>
+                    </button>
+                  </div>
+                  <textarea
+                    id="proposed-exp-editor"
+                    class="cv-page__textarea"
+                    rows="8"
+                    [ngModel]="editableLinkedInExperiences()"
+                    (ngModelChange)="editableLinkedInExperiences.set($event)"></textarea>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Print-only view for clean PDF generation -->
+        <div class="cv-page__print-area">
+          <h2>Version finale optimisée — IntervIA</h2>
+          <p class="cv-page__print-meta">Document préparé pour Mohamed Ben Ali • Session du {{ res.date | date:'dd/MM/yyyy' }}</p>
+          <pre>{{ res.type === 'cv' ? editableProposedText() : (editableLinkedInTitle() + '\n\n' + editableLinkedInAbout() + '\n\n' + editableLinkedInExperiences()) }}</pre>
+        </div>
+      </section>
+    }
+
+    <!-- ============================================================= -->
+    <!-- DRAWER: « MES ANALYSES » (EN MÉMOIRE)                         -->
+    <!-- ============================================================= -->
+    @if (showSavedDrawer()) {
+      <div class="cv-page__drawer-overlay" (click)="showSavedDrawer.set(false)"></div>
+      <aside class="cv-page__drawer" role="dialog" aria-labelledby="drawer-title" aria-modal="true">
+        <div class="cv-page__drawer-header">
+          <div class="cv-page__drawer-title-wrap">
+            <app-icon name="history" aria-hidden="true" />
+            <h3 id="drawer-title">Mes analyses enregistrées</h3>
+          </div>
+          <button class="cv-page__drawer-close" (click)="showSavedDrawer.set(false)" aria-label="Fermer le tiroir d'historique">
+            <app-icon name="close" aria-hidden="true" />
+          </button>
+        </div>
+
+        <div class="cv-page__drawer-body">
+          @if (savedAnalysesList().length === 0) {
+            <div class="cv-page__empty-state">
+              <app-icon name="description" [size]="36" aria-hidden="true" />
+              <p>Vous n'avez pas encore d'analyse enregistrée.</p>
+              <span class="cv-page__empty-hint">Cliquez sur « Enregistrer dans Mes analyses » à l'étape 4 pour sauvegarder votre travail.</span>
+            </div>
+          } @else {
+            <ul class="cv-page__saved-list">
+              @for (item of savedAnalysesList(); track item.id) {
+                <li class="cv-page__saved-item" (click)="loadSavedAnalysis(item)">
+                  <div class="cv-page__saved-info">
+                    <span class="cv-page__saved-type">{{ item.type === 'linkedin' ? 'Profil LinkedIn' : 'CV' }}</span>
+                    <span class="cv-page__saved-date">{{ item.date | date:'dd/MM/yyyy à HH:mm' }}</span>
+                    @if (item.targetRole) {
+                      <span class="cv-page__saved-target">Cible : {{ item.targetRole }}</span>
+                    }
+                  </div>
+                  <div class="cv-page__saved-score">
+                    <span>{{ item.globalScore }}/100</span>
+                  </div>
+                  <button class="cv-page__saved-delete" (click)="deleteSavedAnalysis(item.id, $event)" title="Supprimer cette analyse" aria-label="Supprimer cette analyse">
+                    <app-icon name="close" [size]="16" aria-hidden="true" />
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </aside>
+    }
+  </div>
+</main>

@@ -1,4 +1,4 @@
-.prep-page {
+﻿.prep-page {
   padding-top: 80px;
   min-height: 100vh;
   background-color: var(--color-bg);
@@ -53,8 +53,8 @@
     display: flex;
     align-items: center;
     gap: var(--space-sm);
-    background-color: #F8F4EE;
-    border: 1px solid #E6DCCD;
+    background-color: var(--color-tint-light);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     padding: var(--space-sm) var(--space-md);
     margin-bottom: var(--space-lg);
@@ -138,7 +138,7 @@
     &:focus {
       outline: none;
       border-color: var(--color-primary);
-      box-shadow: 0 0 0 2px rgba(107, 45, 60, 0.15);
+      box-shadow: 0 0 0 2px rgba(75, 46, 143, 0.15);
     }
   }
 
@@ -174,7 +174,7 @@
     transition: background var(--transition-fast);
 
     &:hover {
-      background-color: #F5E6EA;
+      background-color: var(--color-tint-light);
     }
   }
 
@@ -200,7 +200,7 @@
 
     &--selected {
       border-color: var(--color-primary);
-      background-color: #FBF6F7;
+      background-color: var(--color-tint-light);
       box-shadow: 0 0 0 2px var(--color-primary);
     }
   }
@@ -209,7 +209,7 @@
     display: inline-block;
     font-size: var(--font-size-xs);
     font-weight: 600;
-    background-color: #F5E6EA;
+    background-color: var(--color-tint-light);
     color: var(--color-primary);
     padding: 2px 8px;
     border-radius: var(--radius-full);
@@ -338,7 +338,7 @@
     &:hover {
       border-color: var(--color-primary);
       color: var(--color-primary);
-      background-color: #F5E6EA;
+      background-color: var(--color-tint-light);
     }
   }
 
@@ -354,7 +354,7 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background-color: #F5E6EA;
+    background-color: var(--color-tint-light);
     color: var(--color-primary);
     font-size: var(--font-size-xs);
     font-weight: 600;
@@ -381,9 +381,9 @@
     display: flex;
     align-items: center;
     gap: var(--space-sm);
-    background-color: #FFF7ED;
-    border: 1px solid #FFEDD5;
-    color: #C2410C;
+    background-color: var(--color-warning-light);
+    border: 1px solid var(--color-warning);
+    color: var(--color-warning);
     padding: var(--space-sm) var(--space-md);
     border-radius: var(--radius-md);
     margin-top: var(--space-md);
@@ -421,7 +421,7 @@
     align-items: center;
     width: 64px;
     height: 64px;
-    background-color: #F5E6EA;
+    background-color: var(--color-tint-light);
     color: var(--color-primary);
     border-radius: var(--radius-full);
     margin-bottom: var(--space-md);
@@ -624,9 +624,9 @@
     gap: var(--space-sm);
     margin-top: var(--space-xs);
     padding: var(--space-sm) var(--space-md);
-    background-color: #ECFDF5;
-    border: 1px solid #A7F3D0;
-    color: #065F46;
+    background-color: var(--color-success-light);
+    border: 1px solid var(--color-success);
+    color: var(--color-success);
     border-radius: var(--radius-md);
     font-size: var(--font-size-sm);
   }
@@ -654,8 +654,8 @@
     }
 
     &--completed {
-      border-color: #A7F3D0;
-      background: linear-gradient(180deg, #FFFFFF 0%, #F0FDF4 100%);
+      border-color: var(--color-success);
+      background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-success-light) 100%);
     }
   }
 
@@ -675,16 +675,16 @@
     justify-content: center;
 
     &--rh {
-      background-color: #F5E6EA;
+      background-color: var(--color-tint-light);
       color: var(--color-primary);
     }
     &--qcm {
-      background-color: #EBF5FF;
-      color: #1E40AF;
+      background-color: var(--color-tint-light);
+      color: var(--color-accent);
     }
     &--tech {
-      background-color: #F0FDF4;
-      color: #166534;
+      background-color: var(--color-success-light);
+      color: var(--color-success);
     }
   }
 
@@ -700,8 +700,8 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      background-color: #D1FAE5;
-      color: #065F46;
+      background-color: var(--color-success-light);
+      color: var(--color-success);
     }
   }
 
@@ -793,3 +793,4 @@
     }
   }
 }
+

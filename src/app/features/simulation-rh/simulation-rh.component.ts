@@ -9,6 +9,7 @@ import { BtnComponent } from '../../shared/components/btn/btn.component';
 import { TimerComponent } from '../../shared/components/timer/timer.component';
 import { SimulationQuestion } from '../../core/models/simulation.model';
 import { IconComponent } from '../../shared/components/icon/icon.component';
+import { IaAvatarComponent, IaAvatarState } from '../../shared/components/ia-avatar/ia-avatar.component';
 
 @Component({
   selector: 'app-simulation-rh',
@@ -19,7 +20,8 @@ import { IconComponent } from '../../shared/components/icon/icon.component';
     FocusLayoutComponent,
     BtnComponent,
     TimerComponent,
-    IconComponent
+    IconComponent,
+    IaAvatarComponent
   ],
   templateUrl: './simulation-rh.component.html',
   styleUrl: './simulation-rh.component.scss'
@@ -76,6 +78,10 @@ export class SimulationRhComponent implements OnInit, OnDestroy {
   submitting = signal(false);
   showTips = signal(false);
 
+  // État de la recruteuse IA ('parle', 'écoute', 'réfléchit')
+  recruiterState = signal<IaAvatarState>('parle');
+  private speechTimeoutId: any = null;
+
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       const prepId = params['prep'];
@@ -99,6 +105,9 @@ export class SimulationRhComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.speechTimeoutId) {
+      clearTimeout(this.speechTimeoutId);
+    }
     this.stopMediaStream();
   }
 
@@ -141,9 +150,24 @@ export class SimulationRhComponent implements OnInit, OnDestroy {
       this.fallbackTextMode.set(true);
     }
     this.phase.set('interview');
+    this.triggerRecruiterSpeaking();
+
     if (!this.fallbackTextMode() && this.mediaStream && this._videoPlayer?.nativeElement) {
       this._videoPlayer.nativeElement.srcObject = this.mediaStream;
     }
+  }
+
+  private triggerRecruiterSpeaking(): void {
+    if (this.speechTimeoutId) {
+      clearTimeout(this.speechTimeoutId);
+    }
+    this.recruiterState.set('parle');
+    // Après 4,5 secondes (temps de lecture de la question), la recruteuse passe à l'écoute attentive
+    this.speechTimeoutId = setTimeout(() => {
+      if (this.phase() === 'interview' && !this.submitting()) {
+        this.recruiterState.set('écoute');
+      }
+    }, 4500);
   }
 
   toggleTips(): void {
@@ -156,12 +180,17 @@ export class SimulationRhComponent implements OnInit, OnDestroy {
       this.timerResetKey.set(this.timerResetKey() + 1);
       this.currentTextAnswer = '';
       this.showTips.set(false);
+      this.triggerRecruiterSpeaking();
     } else {
       this.finishSimulation();
     }
   }
 
   finishSimulation(): void {
+    if (this.speechTimeoutId) {
+      clearTimeout(this.speechTimeoutId);
+    }
+    this.recruiterState.set('réfléchit');
     this.submitting.set(true);
     this.simService.submitSimulation('sim-1', []).subscribe(res => {
       this.stopMediaStream();
