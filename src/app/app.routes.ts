@@ -89,6 +89,11 @@ export const routes: Routes = [
     canActivate: [candidateGuard]
   },
   {
+    path: 'simulation',
+    loadComponent: () => import('./features/simulation/simulation-placeholder.component')
+      .then(m => m.SimulationPlaceholderComponent)
+  },
+  {
     path: 'admin',
     canActivate: [adminGuard],
     loadComponent: () => import('./features/admin/admin-layout/admin-layout.component')

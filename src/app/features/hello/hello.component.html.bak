@@ -1,0 +1,276 @@
+<main
+  class="livre-viewport theme-livre"
+  [class.reduced-motion]="reducedMotion()"
+  role="region"
+  aria-label="Livre interactif IntervIA : Du stress au calme">
+
+  <!-- Région aria-live pour annoncer les changements de page -->
+  <div class="sr-only" aria-live="polite" aria-atomic="true">
+    {{ liveAnnouncement() }}
+  </div>
+
+  <!-- Barre Supérieure (En-tête du Livre) -->
+  <header class="livre-topbar" role="banner">
+    <div class="topbar-left">
+      <div class="brand-link" tabindex="0" (click)="goToPage(1)" (keydown.enter)="goToPage(1)" role="button" aria-label="Retour au Sas d'accueil">
+        <app-logo variant="full" [size]="28"></app-logo>
+      </div>
+      <span class="brand-sep" aria-hidden="true">|</span>
+      <span class="manga-volume-label">VOL. 1 · DU STRESS AU CALME</span>
+    </div>
+
+    <div class="topbar-center">
+      <button
+        type="button"
+        class="sommaire-btn"
+        (click)="toggleSommaire()"
+        aria-haspopup="dialog"
+        [attr.aria-expanded]="showSommaire()">
+        <app-icon name="checklist" [size]="16" aria-hidden="true"></app-icon>
+        <span>Sommaire (Échap)</span>
+      </button>
+    </div>
+
+    <div class="topbar-right">
+      <!-- Bouton Animations : activées / réduites -->
+      <button
+        type="button"
+        class="motion-toggle-btn"
+        [class.active]="reducedMotion()"
+        (click)="toggleReducedMotion()"
+        [attr.aria-pressed]="reducedMotion()"
+        title="Activer ou réduire les animations visuelles">
+        <app-icon name="tune" [size]="14"></app-icon>
+        <span class="motion-text">{{ reducedMotion() ? 'Animations : réduites' : 'Animations : activées' }}</span>
+      </button>
+
+      <!-- Interrupteur segmenté HISTOIRE / MODE DÉMO -->
+      <div class="segmented-control" role="group" aria-label="Mode d'affichage">
+        <button
+          type="button"
+          class="segment-btn"
+          [class.active]="!showDemoDrawer()"
+          [attr.aria-pressed]="!showDemoDrawer()"
+          (click)="showDemoDrawer.set(false)">
+          HISTOIRE
+        </button>
+        <button
+          type="button"
+          class="segment-btn"
+          [class.active]="showDemoDrawer()"
+          [attr.aria-pressed]="showDemoDrawer()"
+          (click)="toggleDemoDrawer()">
+          ✦ MODE DÉMO
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Zone de Scène Manga Unique (100dvh, Pas de Défilement) -->
+  <section
+    class="livre-stage"
+    aria-roledescription="Page de manga"
+    [attr.aria-label]="currentPageDef().pageTitle">
+
+    <div class="page-fader">
+      @switch (currentPage()) {
+        @case (1) {
+          <!-- Sas d'entrée -->
+          <app-page1-sas [reducedMotion]="reducedMotion()" (startStory)="goToPage(2)"></app-page1-sas>
+        }
+        @case (2) {
+          <!-- Case 1 : Candidature après candidature -->
+          <app-page-case-simple
+            chapter="CHAPITRE 1 · L'ORAGE MENTAL"
+            title="Nuits de code"
+            imageSrc="assets/livre/case-1.jpg"
+            altText="Mohamed seul devant son ordinateur la nuit avec ses post-its."
+            cartoucheHtml="CANDIDATURE APRÈS <span class='accent-rose'>CANDIDATURE</span>."
+            bulleText="« Combien de formulaires avant qu’on remarque mon profil ? »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (3) {
+          <!-- Case 2 : Enfin un entretien -->
+          <app-page-case-simple
+            chapter="CHAPITRE 1 · L'ORAGE MENTAL"
+            title="L'espoir d'un message"
+            imageSrc="assets/livre/case-2.jpg"
+            altText="Mohamed surpris et souriant en regardant la notification sur son téléphone."
+            cartoucheHtml="ENFIN : UN <span class='accent-rose'>ENTRETIEN</span>."
+            bulleText="« Entretien technique confirmé pour jeudi prochain. »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (4) {
+          <!-- Case 3 : La surcharge cognitive -->
+          <app-page-case-simple
+            chapter="CHAPITRE 1 · L'ORAGE MENTAL"
+            title="La surcharge cognitive"
+            imageSrc="assets/livre/case-3.jpg"
+            altText="Mohamed entouré de notes et de CV imprimés à son bureau."
+            cartoucheHtml="DES PAGES, DES NOTES… ET AUCUN <span class='accent-rose'>RETOUR</span>."
+            bulleText="« Tout est là dans ma tête… mais comment l’expliquer clairement ? »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (5) {
+          <!-- Case 4 : Face aux recruteurs -->
+          <app-page-case-simple
+            chapter="CHAPITRE 1 · L'ORAGE MENTAL"
+            title="Face aux recruteurs"
+            imageSrc="assets/livre/case-4.jpg"
+            altText="Mohamed tendu face aux deux recruteurs en entretien."
+            cartoucheHtml="LES <span class='accent-rose'>MOTS</span> S'ÉCHAPPENT."
+            bulleText="« Le silence s’installe. Je perds le fil de mes explications. »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (6) {
+          <!-- Polaroïd interactif : Briser la paralysie -->
+          <app-page3-regard (completed)="nextPage()"></app-page3-regard>
+        }
+        @case (7) {
+          <!-- Case 5 : La déception sous la pluie -->
+          <app-page-case-simple
+            chapter="CHAPITRE 1 · L'ORAGE MENTAL"
+            title="La déception sous la pluie"
+            imageSrc="assets/livre/case-5.jpg"
+            altText="Mohamed dehors sous la pluie au crépuscule lisant le message de refus."
+            cartoucheHtml="« NOUS AVONS RETENU UN AUTRE <span class='accent-rose'>PROFIL</span>. »"
+            bulleText="« Encore un refus… Mais je ne veux pas abandonner. »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (8) {
+          <!-- Case 6 : Le déclic de l'affiche -->
+          <app-page-case-simple
+            chapter="CHAPITRE 2 · DU STRESS AU CALME"
+            title="Le déclic"
+            imageSrc="assets/livre/case-6.jpg"
+            altText="Mohamed s’arrêtant avec curiosité devant l'affiche urbaine au dégradé violet."
+            cartoucheHtml="ET SI ON S'<span class='accent-rose'>ENTRAÎNAIT</span> AVANT ?"
+            bulleText="« Une méthode guidée sans jugement pour reprendre confiance. »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (9) {
+          <!-- Case 7 : Le Dojo IA -->
+          <app-page-case-simple
+            chapter="CHAPITRE 2 · DU STRESS AU CALME"
+            title="Le Dojo IA"
+            imageSrc="assets/livre/case-7.jpg"
+            altText="Mohamed apaisé devant l’avatar IA souriant dans la douce lumière du matin."
+            cartoucheHtml="UNE <span class='accent-rose'>QUESTION</span> À LA FOIS."
+            bulleText="« Le trac se dissout dès que la structure prend le relais. »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (10) {
+          <!-- Case 8 : L'assurance retrouvée -->
+          <app-page-case-simple
+            chapter="CHAPITRE 2 · DU STRESS AU CALME"
+            title="L'assurance retrouvée"
+            imageSrc="assets/livre/case-8.jpg"
+            altText="Mohamed détendu face aux mêmes recruteurs attentifs et souriants."
+            cartoucheHtml="CETTE FOIS, LES MOTS SONT <span class='accent-rose'>LÀ</span>."
+            bulleText="« Je réponds avec fluidité, posément, sans aucune précipitation. »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (11) {
+          <!-- Case 9 : Le triomphe et le badge d'or -->
+          <app-page11-triomphe></app-page11-triomphe>
+        }
+        @case (12) {
+          <!-- Appel final : Choix stage/emploi et inscription -->
+          <app-page12-appel></app-page12-appel>
+        }
+      }
+    </div>
+  </section>
+
+  <!-- Barre Inférieure (Commandes de Navigation Minimales 48px) -->
+  <footer class="livre-bottombar" role="navigation" aria-label="Navigation dans le livre">
+    <!-- Précédent -->
+    <div class="bottombar-left">
+      <button
+        type="button"
+        class="nav-btn prev-btn"
+        [disabled]="isFirstPage()"
+        (click)="prevPage()"
+        aria-label="Aller à la page précédente">
+        <app-icon name="arrow_back" [size]="20" aria-hidden="true"></app-icon>
+        <span class="btn-text">Précédent</span>
+      </button>
+    </div>
+
+    <!-- Pastilles de Pagination & Indicateur Texte -->
+    <div class="bottombar-center">
+      <span class="page-indicator-text">
+        Page <strong>{{ currentPage() }}</strong> sur {{ pages.length }}
+      </span>
+
+      <div class="dots-track" role="tablist" aria-label="Sélecteur de page rapide">
+        @for (page of pages; track page.pageNumber) {
+          <button
+            type="button"
+            class="dot-pill"
+            role="tab"
+            [class.active]="currentPage() === page.pageNumber"
+            [attr.aria-selected]="currentPage() === page.pageNumber"
+            [attr.aria-label]="'Aller à la page ' + page.pageNumber + ' : ' + page.pageTitle"
+            (click)="goToPage(page.pageNumber)">
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Suivant (JAMAIS BLOQUÉ, 48px minimum) -->
+    <div class="bottombar-right">
+      @if (!isLastPage()) {
+        <button
+          type="button"
+          class="nav-btn next-btn"
+          (click)="nextPage()"
+          aria-label="Aller à la page suivante">
+          <span class="btn-text">Suivant</span>
+          <app-icon name="arrow_forward" [size]="20" aria-hidden="true"></app-icon>
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="nav-btn finish-btn"
+          (click)="goToPage(1)"
+          aria-label="Recommencer depuis le début">
+          <span class="btn-text">Recommencer</span>
+          <app-icon name="check_circle" [size]="20" aria-hidden="true"></app-icon>
+        </button>
+      }
+    </div>
+  </footer>
+
+  <!-- Modale Sommaire (4 Chapitres & Passer l'histoire) -->
+  @if (showSommaire()) {
+    <app-sommaire-modal
+      [currentPage]="currentPage()"
+      (goToPage)="goToPage($event); showSommaire.set(false)"
+      (close)="showSommaire.set(false)">
+    </app-sommaire-modal>
+  }
+
+  <!-- Drawer Mode Démo (Raccourcis Rôles & Espaces) -->
+  @if (showDemoDrawer()) {
+    <app-demo-drawer
+      (close)="showDemoDrawer.set(false)">
+    </app-demo-drawer>
+  }
+</main>

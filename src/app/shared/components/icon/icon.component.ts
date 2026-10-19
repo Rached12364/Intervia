@@ -100,7 +100,10 @@ export type IconName =
   | 'chat_bubble'
   | 'score_bars'
   | 'visibility'
-  | 'visibility_off';
+  | 'visibility_off'
+  | 'volume_up'
+  | 'volume_off'
+  | 'hearing';
 
 @Component({
   selector: 'app-icon',
@@ -612,6 +615,19 @@ export type IconName =
           <line x1="12" y1="20" x2="12" y2="9" />
           <line x1="17" y1="20" x2="17" y2="4" />
           <polyline points="7 13 12 7 17 2" />
+        }
+        @case ('volume_up') {
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+        }
+        @case ('volume_off') {
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+          <line x1="23" y1="9" x2="17" y2="15" />
+          <line x1="17" y1="9" x2="23" y2="15" />
+        }
+        @case ('hearing') {
+          <path d="M14 8.5a4.5 4.5 0 1 0-9 0c0 4.5 4.5 7.5 4.5 11.5" />
+          <path d="M12 12a2 2 0 1 0-4 0c0 1.5 2 2.5 2 4" />
         }
         @default {
           <!-- Fallback generic circle -->

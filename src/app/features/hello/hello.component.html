@@ -1,748 +1,351 @@
-<app-navbar></app-navbar>
+﻿<main
+  class="livre-viewport theme-livre"
+  [class.reduced-motion]="reducedMotion()"
+  role="region"
+  aria-label="Livre interactif IntervIA : Du stress au calme">
 
-<main class="hello-page" [class.reduced-motion]="reducedMotion()">
+  <!-- Région aria-live pour annoncer les changements de page -->
+  <div class="sr-only" aria-live="polite" aria-atomic="true">
+    {{ liveAnnouncement() }}
+  </div>
 
-  <!-- ======================================================== -->
-  <!-- BARRE D'ACCESSIBILITÉ & PRÉFÉRENCE D'ANIMATION (MÉMORISÉE)-->
-  <!-- ======================================================== -->
-  <aside class="a11y-bar" aria-label="Préférences d'accessibilité">
-    <div class="a11y-bar__inner">
-      <div class="a11y-bar__info">
-        <app-icon name="tune" [size]="16" aria-hidden="true" />
-        <span>Confort visuel :</span>
+  <!-- Barre Supérieure (En-tête du Livre) -->
+  <header class="livre-topbar" role="banner">
+    <div class="topbar-left">
+      <div class="brand-link" tabindex="0" (click)="goToPage(1)" (keydown.enter)="goToPage(1)" role="button" aria-label="Retour au Sas d'accueil">
+        <app-logo variant="full" [size]="28"></app-logo>
       </div>
+      <span class="brand-sep" aria-hidden="true">|</span>
+      <span class="manga-volume-label">VOL. 1 · DU STRESS AU CALME</span>
+    </div>
+
+    <div class="topbar-center">
       <button
         type="button"
-        role="switch"
-        class="a11y-bar__toggle"
-        [attr.aria-checked]="reducedMotion()"
-        (click)="toggleReducedMotion()">
-        <span class="a11y-bar__indicator" [class.a11y-bar__indicator--on]="reducedMotion()"></span>
-        <span>{{ reducedMotion() ? 'Animations réduites (actif)' : 'Réduire les animations' }}</span>
+        class="sommaire-btn"
+        (click)="toggleSommaire()"
+        aria-haspopup="dialog"
+        [attr.aria-expanded]="showSommaire()">
+        <app-icon name="checklist" [size]="16" aria-hidden="true"></app-icon>
+        <span>Sommaire (Échap)</span>
       </button>
     </div>
-  </aside>
 
-  <!-- ======================================================== -->
-  <!-- SECTION 1 : HÉROS "DU STRESS AU CALME"                   -->
-  <!-- ======================================================== -->
-  <header class="hero-section">
-    <!-- Arrière-plan animé ou vidéo avec voile sombre AA -->
-    <app-hero-background
-      [stressLevel]="stressLevel()"
-      [reducedMotion]="reducedMotion()"
-      [isPlaying]="isHeroBackgroundPlaying()"
-      [isBreathingActive]="isBreathingActive()"
-      (togglePlay)="toggleHeroBackground()">
-    </app-hero-background>
+    <div class="topbar-right">
+      <!-- Bouton Animations : activées / réduites -->
+      <button
+        type="button"
+        class="motion-toggle-btn"
+        [class.active]="reducedMotion()"
+        (click)="toggleReducedMotion()"
+        [attr.aria-pressed]="reducedMotion()"
+        title="Activer ou réduire les animations visuelles">
+        <app-icon name="tune" [size]="14"></app-icon>
+        <span class="motion-text">{{ reducedMotion() ? 'Animations : réduites' : 'Animations : activées' }}</span>
+      </button>
 
-    <div class="hero-section__container">
-      <div class="hero-section__badge-row">
-        <span class="hero-section__kicker">BIENVENUE</span>
+      <!-- Interrupteur segmenté HISTOIRE / MODE DÉMO -->
+      <div class="segmented-control" role="group" aria-label="Mode d'affichage">
+        <button
+          type="button"
+          class="segment-btn"
+          [class.active]="!showDemoDrawer()"
+          [attr.aria-pressed]="!showDemoDrawer()"
+          (click)="showDemoDrawer.set(false)">
+          HISTOIRE
+        </button>
+        <button
+          type="button"
+          class="segment-btn"
+          [class.active]="showDemoDrawer()"
+          [attr.aria-pressed]="showDemoDrawer()"
+          (click)="toggleDemoDrawer()">
+          ✦ MODE DÉMO
+        </button>
       </div>
-
-      <!-- Titre changeant selon le niveau de stress -->
-      <h1 class="hero-section__title animate-fade-in" aria-live="polite">
-        {{ heroTitle() }}
-      </h1>
-
-      <p class="hero-section__subtitle">
-        Dites-nous ce que vous cherchez : nous préparons votre entraînement à votre rythme.
-      </p>
-
-      <!-- Jauge interactive : Mon stress avant un entretien -->
-      <div class="stress-control" role="group" aria-labelledby="stress-label">
-        <div class="stress-control__header">
-          <label id="stress-label" class="stress-control__label">
-            <app-icon name="favorite" [size]="18" aria-hidden="true" />
-            <span>Mon stress avant un entretien : <strong>{{ stressLevel() }}/10</strong></span>
-          </label>
-          <span class="stress-control__status" aria-live="polite">
-            {{ getStressText() }}
-          </span>
-        </div>
-
-        <div class="stress-control__slider-wrapper">
-          <button
-            type="button"
-            class="stress-control__step-btn"
-            (click)="setStress(stressLevel() - 1)"
-            [disabled]="stressLevel() <= 0"
-            title="Diminuer le stress"
-            aria-label="Diminuer le niveau de stress">
-            <app-icon name="remove" [size]="16" aria-hidden="true" />
-          </button>
-
-          <div
-            #sliderTrack
-            class="stress-control__track"
-            role="slider"
-            tabindex="0"
-            aria-label="Mon stress avant un entretien"
-            aria-valuemin="0"
-            aria-valuemax="10"
-            [attr.aria-valuenow]="stressLevel()"
-            [attr.aria-valuetext]="getStressText()"
-            (keydown)="onSliderKeydown($event)">
-            <div
-              class="stress-control__fill"
-              [style.width.%]="stressLevel() * 10"
-              [class.stress-control__fill--calm]="stressLevel() < 4"
-              [class.stress-control__fill--med]="stressLevel() >= 4 && stressLevel() < 7"
-              [class.stress-control__fill--high]="stressLevel() >= 7">
-            </div>
-            <div
-              class="stress-control__thumb"
-              [style.left.%]="stressLevel() * 10">
-            </div>
-          </div>
-
-          <button
-            type="button"
-            class="stress-control__step-btn"
-            (click)="setStress(stressLevel() + 1)"
-            [disabled]="stressLevel() >= 10"
-            title="Augmenter le stress"
-            aria-label="Augmenter le niveau de stress">
-            <app-icon name="add" [size]="16" aria-hidden="true" />
-          </button>
-        </div>
-
-        <!-- Bouton Respirer 10 secondes -->
-        <div class="stress-control__action">
-          @if (!isBreathingActive()) {
-            <button
-              type="button"
-              class="stress-control__breathe-btn"
-              (click)="startBreathingExercise()">
-              <app-icon name="spa" [size]="18" aria-hidden="true" />
-              <span>Respirer 10 secondes</span>
-            </button>
-          } @else {
-            <div class="breathing-widget animate-fade-in" role="status" aria-live="assertive">
-              <div class="breathing-widget__circle" [class.breathing-widget__circle--expand]="breathingPhase() === 'inspire'" [class.breathing-widget__circle--hold]="breathingPhase() === 'hold'" [class.breathing-widget__circle--shrink]="breathingPhase() === 'expire'">
-                <span class="breathing-widget__countdown">{{ breathingSecondsLeft() }}s</span>
-              </div>
-              <div class="breathing-widget__text">
-                @if (breathingPhase() === 'inspire') {
-                  <strong>Inspirez lentement par le nez…</strong>
-                } @else if (breathingPhase() === 'hold') {
-                  <strong>Gardez l'air doucement…</strong>
-                } @else {
-                  <strong>Expirez profondément par la bouche…</strong>
-                }
-              </div>
-              <button type="button" class="breathing-widget__stop-btn" (click)="stopBreathing()">
-                Arrêter
-              </button>
-            </div>
-          }
-        </div>
-      </div>
-
-      <!-- Sélecteur "Je cherche..." (Stage PFE vs Emploi) -->
-      <section class="choice-box" aria-labelledby="choice-heading">
-        <h2 id="choice-heading" class="choice-box__title">Je cherche…</h2>
-
-        <div
-          #cardsGroup
-          class="choice-box__cards"
-          role="radiogroup"
-          aria-labelledby="choice-heading"
-          tabindex="0"
-          (keydown)="onCardsKeydown($event)">
-
-          <!-- Carte 1 : Stage PFE -->
-          <div
-            class="choice-card"
-            [class.choice-card--selected]="selectedChoice() === 'stage'"
-            (click)="selectChoice('stage')"
-            role="radio"
-            [attr.aria-checked]="selectedChoice() === 'stage'"
-            tabindex="0"
-            (keydown.enter)="selectChoice('stage')"
-            (keydown.space)="selectChoice('stage'); $event.preventDefault()">
-            <div class="choice-card__icon-wrap">
-              <app-icon name="school" [size]="28" aria-hidden="true" />
-            </div>
-            <div class="choice-card__content">
-              <div class="choice-card__name">Un stage (PFE)</div>
-              <div class="choice-card__desc">Projet de fin d'études ou stage pré-embauche</div>
-            </div>
-            <div class="choice-card__radio" aria-hidden="true">
-              @if (selectedChoice() === 'stage') {
-                <app-icon name="check_circle" [size]="22" />
-              } @else {
-                <span class="choice-card__circle"></span>
-              }
-            </div>
-          </div>
-
-          <!-- Carte 2 : Emploi -->
-          <div
-            class="choice-card"
-            [class.choice-card--selected]="selectedChoice() === 'emploi'"
-            (click)="selectChoice('emploi')"
-            role="radio"
-            [attr.aria-checked]="selectedChoice() === 'emploi'"
-            tabindex="0"
-            (keydown.enter)="selectChoice('emploi')"
-            (keydown.space)="selectChoice('emploi'); $event.preventDefault()">
-            <div class="choice-card__icon-wrap">
-              <app-icon name="work" [size]="28" aria-hidden="true" />
-            </div>
-            <div class="choice-card__content">
-              <div class="choice-card__name">Un emploi</div>
-              <div class="choice-card__desc">Premier emploi, reconversion ou évolution de carrière</div>
-            </div>
-            <div class="choice-card__radio" aria-hidden="true">
-              @if (selectedChoice() === 'emploi') {
-                <app-icon name="check_circle" [size]="22" />
-              } @else {
-                <span class="choice-card__circle"></span>
-              }
-            </div>
-          </div>
-        </div>
-
-        <!-- Aperçu dynamique du parcours -->
-        <div class="choice-box__preview" aria-live="polite">
-          @if (selectedChoice() === 'stage') {
-            <div class="choice-box__preview-text animate-fade-in">
-              <app-icon name="info" [size]="18" aria-hidden="true" />
-              <span><strong>Votre parcours :</strong> entretien RH, QCM et défi de code adaptés à un PFE.</span>
-            </div>
-          } @else if (selectedChoice() === 'emploi') {
-            <div class="choice-box__preview-text animate-fade-in">
-              <app-icon name="info" [size]="18" aria-hidden="true" />
-              <span><strong>Votre parcours :</strong> entretien RH, QCM et test technique adaptés à un poste.</span>
-            </div>
-          } @else {
-            <div class="choice-box__preview-text choice-box__preview-text--muted">
-              <span>Sélectionnez stage ou emploi pour calibrer vos simulations.</span>
-            </div>
-          }
-        </div>
-
-        <!-- Erreur d'inattention si clic sans sélection -->
-        <div class="choice-box__error" aria-live="assertive" role="alert">
-          @if (validationError()) {
-            <div class="choice-box__error-message animate-fade-in">
-              <app-icon name="error_outline" [size]="18" aria-hidden="true" />
-              <span>{{ validationError() }}</span>
-            </div>
-          }
-        </div>
-
-        <!-- Actions principales du Héros -->
-        <div class="choice-box__actions">
-          <app-btn
-            variant="primary"
-            size="lg"
-            icon="arrow_forward"
-            (onClick)="startPreparation()">
-            Commencer ma préparation
-          </app-btn>
-
-          <a routerLink="/connexion" class="choice-box__login-link">
-            J'ai déjà un compte
-          </a>
-        </div>
-      </section>
-
     </div>
   </header>
 
-  <!-- ======================================================== -->
-  <!-- SECTION 2 : "L'IA VOUS ÉCOUTE" (SIMULATION INTERACTIVE) -->
-  <!-- ======================================================== -->
-  @defer (on viewport) {
-    <section class="section section--light ai-listen" aria-labelledby="ai-listen-heading">
-      <div class="section__container">
-        <div class="section__header">
-          <span class="section__kicker">DIAGNOSTIC BIENVEILLANT</span>
-          <h2 id="ai-listen-heading" class="section__title">L'IA vous écoute</h2>
-          <p class="section__subtitle">
-            Pendant votre simulation, l'intelligence artificielle analyse avec bienveillance 4 dimensions clés de votre communication.
-          </p>
-        </div>
+  <!-- Zone de Scène Manga Unique (100dvh, Pas de Défilement) -->
+  <section
+    class="livre-stage"
+    aria-roledescription="Page de manga"
+    [attr.aria-label]="currentPageDef().pageTitle">
 
-        <div
-          class="ai-listen__frame"
-          (mouseenter)="pausePills()"
-          (mouseleave)="resumePills()"
-          (focusin)="pausePills()"
-          (focusout)="resumePills()">
+    <div class="page-fader">
+      @switch (currentPage()) {
+        @case (1) {
+          <!-- Sas d'entrée -->
+          <app-page1-sas [reducedMotion]="reducedMotion()" (startStory)="goToPage(2)"></app-page1-sas>
+        }
+        @case (2) {
+          <!-- Case 1 : Candidature après candidature -->
+          <app-page-case-simple
+            chapter="CHAPITRE 1 · L'ORAGE MENTAL"
+            title="Nuits de code"
+            imageSrc="assets/livre/case-1.jpg"
+            altText="Mohamed seul devant son ordinateur la nuit avec ses post-its."
+            cartoucheHtml="CANDIDATURE APRÈS <span class='accent-rose'>CANDIDATURE</span>."
+            bulleText="« Combien de formulaires avant qu’on remarque mon profil ? »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (3) {
+          <!-- Case 2 : Enfin un entretien -->
+          <app-page-case-simple
+            chapter="CHAPITRE 1 · L'ORAGE MENTAL"
+            title="L'espoir d'un message"
+            imageSrc="assets/livre/case-2.jpg"
+            altText="Mohamed surpris et souriant en regardant la notification sur son téléphone."
+            cartoucheHtml="ENFIN : UN <span class='accent-rose'>ENTRETIEN</span>."
+            bulleText="« Entretien technique confirmé pour jeudi prochain. »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (4) {
+          <!-- Case 3 : La surcharge cognitive -->
+          <app-page-case-simple
+            chapter="CHAPITRE 1 · L'ORAGE MENTAL"
+            title="La surcharge cognitive"
+            imageSrc="assets/livre/case-3.jpg"
+            altText="Mohamed entouré de notes et de CV imprimés à son bureau."
+            cartoucheHtml="DES PAGES, DES NOTES… ET AUCUN <span class='accent-rose'>RETOUR</span>."
+            bulleText="« Tout est là dans ma tête… mais comment l’expliquer clairement ? »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (5) {
+          <!-- Case 4 : Face aux recruteurs -->
+          <app-page-case-simple
+            chapter="CHAPITRE 1 · L'ORAGE MENTAL"
+            title="Face aux recruteurs"
+            imageSrc="assets/livre/case-4.jpg"
+            altText="Mohamed tendu face aux deux recruteurs en entretien."
+            cartoucheHtml="LES <span class='accent-rose'>MOTS</span> S'ÉCHAPPENT."
+            bulleText="« Le silence s’installe. Je perds le fil de mes explications. »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (6) {
+          <!-- Polaroïd interactif : Briser la paralysie -->
+          <app-page3-regard (completed)="nextPage()"></app-page3-regard>
+        }
+        @case (7) {
+          <!-- Case 5 : La déception sous la pluie -->
+          <app-page-case-simple
+            chapter="CHAPITRE 1 · L'ORAGE MENTAL"
+            title="La déception sous la pluie"
+            imageSrc="assets/livre/case-5.jpg"
+            altText="Mohamed dehors sous la pluie au crépuscule lisant le message de refus."
+            cartoucheHtml="« NOUS AVONS RETENU UN AUTRE <span class='accent-rose'>PROFIL</span>. »"
+            bulleText="« Encore un refus… Mais je ne veux pas abandonner. »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (8) {
+          <!-- Case 6 : Le déclic de l'affiche -->
+          <app-page-case-simple
+            chapter="CHAPITRE 2 · DU STRESS AU CALME"
+            title="Le déclic"
+            imageSrc="assets/livre/case-6.jpg"
+            altText="Mohamed s’arrêtant avec curiosité devant l'affiche urbaine au dégradé violet."
+            cartoucheHtml="ET SI ON S'<span class='accent-rose'>ENTRAÎNAIT</span> AVANT ?"
+            bulleText="« Une méthode guidée sans jugement pour reprendre confiance. »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (9) {
+          <!-- Case 7 : Le Dojo IA -->
+          <app-page-case-simple
+            chapter="CHAPITRE 2 · DU STRESS AU CALME"
+            title="Le Dojo IA"
+            imageSrc="assets/livre/case-7.jpg"
+            altText="Mohamed apaisé devant l’avatar IA souriant dans la douce lumière du matin."
+            cartoucheHtml="UNE <span class='accent-rose'>QUESTION</span> À LA FOIS."
+            bulleText="« Le trac se dissout dès que la structure prend le relais. »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (10) {
+          <!-- Case 8 : L'assurance retrouvée -->
+          <app-page-case-simple
+            chapter="CHAPITRE 2 · DU STRESS AU CALME"
+            title="L'assurance retrouvée"
+            imageSrc="assets/livre/case-8.jpg"
+            altText="Mohamed détendu face aux mêmes recruteurs attentifs et souriants."
+            cartoucheHtml="CETTE FOIS, LES MOTS SONT <span class='accent-rose'>LÀ</span>."
+            bulleText="« Je réponds avec fluidité, posément, sans aucune précipitation. »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (11) {
+          <app-page-case-simple
+            chapter="MODE D'EMPLOI · 1 SUR 6"
+            title="Coller l'offre"
+            imageSrc="assets/livre/usage-1-offre.jpg"
+            altText="Mohamed colle une offre d'emploi dans la plateforme IntervIA."
+            cartoucheHtml="COLLER L'<span class='accent-rose'>OFFRE</span> QUI VOUS INTÉRESSE."
+            bulleText="« Je colle l'annonce, et on s'occupe du reste. »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (12) {
+          <app-page-case-simple
+            chapter="MODE D'EMPLOI · 2 SUR 6"
+            title="Un parcours sur mesure"
+            imageSrc="assets/livre/usage-2-generation.jpg"
+            altText="Mohamed regarde la plateforme préparer un entretien RH, un QCM et un test technique."
+            cartoucheHtml="L'IA PRÉPARE VOTRE <span class='accent-rose'>PARCOURS</span> SUR MESURE."
+            bulleText="« Entretien RH, QCM et test technique, adaptés à cette offre. »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (13) {
+          <app-page-case-simple
+            chapter="MODE D'EMPLOI · 3 SUR 6"
+            title="Une étape à la fois"
+            imageSrc="assets/livre/usage-3-entrainement.jpg"
+            altText="Mohamed répond à une question à la fois dans un environnement calme."
+            cartoucheHtml="UNE <span class='accent-rose'>ÉTAPE</span> À LA FOIS, À VOTRE RYTHME."
+            bulleText="« Une question, puis la suivante. »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (14) {
+          <app-page-case-simple
+            chapter="MODE D'EMPLOI · 4 SUR 6"
+            title="Un retour concret"
+            imageSrc="assets/livre/usage-4-score.jpg"
+            altText="Mohamed découvre son score et ses points à améliorer."
+            cartoucheHtml="UN RETOUR <span class='accent-rose'>CONCRET</span>, PAS JUSTE UN SCORE."
+            bulleText="« Je vois mes points forts et ce que je peux améliorer. »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (15) {
+          <app-page-case-simple
+            chapter="MODE D'EMPLOI · 5 SUR 6"
+            title="Un CV amélioré"
+            imageSrc="assets/livre/usage-5-cv.jpg"
+            altText="Mohamed compare son CV actuel et la version proposée par l'IA."
+            cartoucheHtml="VOTRE <span class='accent-rose'>CV</span>, AMÉLIORÉ SANS RIEN INVENTER."
+            bulleText="« Je relis, j'accepte ou je refuse chaque suggestion. »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (16) {
+          <app-page-case-simple
+            chapter="MODE D'EMPLOI · 6 SUR 6"
+            title="Votre profil LinkedIn"
+            imageSrc="assets/livre/usage-6-linkedin.jpg"
+            altText="Mohamed prépare le texte de son profil LinkedIn avec l'aide de l'IA."
+            cartoucheHtml="VOTRE PROFIL <span class='accent-rose'>LINKEDIN</span> AUSSI."
+            bulleText="« Un texte prêt à copier, section par section. »"
+            [reducedMotion]="reducedMotion()"
+            (advance)="nextPage()">
+          </app-page-case-simple>
+        }
+        @case (17) {
+          <!-- Case 9 : Le triomphe et le badge d'or -->
+          <app-page11-triomphe></app-page11-triomphe>
+        }
+        @case (18) {
+          <!-- Appel final : Choix stage/emploi et inscription -->
+          <app-page12-appel></app-page12-appel>
+        }
+        @default {
+          <p>Cette page est en préparation.</p>
+        }
+      }
+    </div>
+  </section>
 
-          <!-- En-tête de la webcam simulée -->
-          <div class="ai-listen__topbar">
-            <div class="ai-listen__rec-indicator">
-              <span class="ai-listen__rec-dot"></span>
-              <span>Simulation en direct</span>
-            </div>
-            <span class="ai-listen__badge-simulated">Aperçu simulé</span>
-          </div>
+  <!-- Barre Inférieure (Commandes de Navigation Minimales 48px) -->
+  <footer class="livre-bottombar" role="navigation" aria-label="Navigation dans le livre">
+    <!-- Précédent -->
+    <div class="bottombar-left">
+      <button
+        type="button"
+        class="nav-btn prev-btn"
+        [disabled]="isFirstPage()"
+        (click)="prevPage()"
+        aria-label="Aller à la page précédente">
+        <app-icon name="arrow_back" [size]="20" aria-hidden="true"></app-icon>
+        <span class="btn-text">Précédent</span>
+      </button>
+    </div>
 
-          <!-- Écran de simulation centrale -->
-          <div class="ai-listen__screen">
-            <div class="ai-listen__avatar-container">
-              <div class="ai-listen__avatar">
-                <app-icon name="face" [size]="64" aria-hidden="true" />
-              </div>
-              <div class="ai-listen__waveform" aria-hidden="true">
-                <span class="ai-listen__bar ai-listen__bar--1"></span>
-                <span class="ai-listen__bar ai-listen__bar--2"></span>
-                <span class="ai-listen__bar ai-listen__bar--3"></span>
-                <span class="ai-listen__bar ai-listen__bar--4"></span>
-                <span class="ai-listen__bar ai-listen__bar--5"></span>
-              </div>
-            </div>
+    <!-- Pastilles de Pagination & Indicateur Texte -->
+    <div class="bottombar-center">
+      <span class="page-indicator-text">
+        Page <strong>{{ currentPage() }}</strong> sur {{ pages.length }}
+      </span>
 
-            <!-- 4 Pastilles rotatives interactives -->
-            <div class="ai-listen__pills-grid" aria-hidden="true">
-              @for (pill of analysisPills; track pill.id; let idx = $index) {
-                <div
-                  class="ai-pill"
-                  [class.ai-pill--active]="activePillIndex() === idx"
-                  (click)="selectPill(idx)">
-                  <div class="ai-pill__icon">
-                    <app-icon [name]="pill.icon" [size]="20" />
-                  </div>
-                  <div class="ai-pill__content">
-                    <span class="ai-pill__label">{{ pill.label }}</span>
-                    <strong class="ai-pill__value">{{ pill.value }}</strong>
-                  </div>
-                </div>
-              }
-            </div>
-
-            <!-- Version texte accessible pour lecteur d'écran -->
-            <div class="sr-only">
-              Diagnostic simulé :
-              @for (pill of analysisPills; track pill.id) {
-                <span>{{ pill.label }} : {{ pill.value }}. {{ pill.tip }}.</span>
-              }
-            </div>
-          </div>
-
-          <!-- Explication de la pastille sélectionnée -->
-          <div class="ai-listen__footer-tip">
-            <app-icon name="lightbulb" [size]="18" aria-hidden="true" />
-            <span>
-              <strong>{{ analysisPills[activePillIndex()].label }} :</strong>
-              {{ analysisPills[activePillIndex()].tip }}
-            </span>
-          </div>
-        </div>
-      </div>
-    </section>
-  } @placeholder {
-    <div class="section-placeholder" aria-hidden="true"></div>
-  }
-
-  <!-- ======================================================== -->
-  <!-- SECTION 3 : "VOTRE PARCOURS EN UN CLIC" (12 COMPÉTENCES) -->
-  <!-- ======================================================== -->
-  @defer (on viewport) {
-    <section class="section skills-section" aria-labelledby="skills-heading">
-      <div class="section__container">
-        <div class="section__header">
-          <span class="section__kicker">PROGRAMME SUR MESURE</span>
-          <h2 id="skills-heading" class="section__title">Votre parcours en un clic</h2>
-          <p class="section__subtitle">
-            Choisissez vos technologies et compétences : vos modules d'entraînement s'ajustent instantanément.
-          </p>
-        </div>
-
-        <!-- Nuage des 12 compétences interactives -->
-        <div class="skills-cloud" role="group" aria-label="Sélection des compétences d'entraînement">
-          @for (skill of availableSkills; track skill.id) {
-            <button
-              type="button"
-              class="skill-pill"
-              [class.skill-pill--selected]="isSkillSelected(skill.id)"
-              [attr.aria-pressed]="isSkillSelected(skill.id)"
-              (click)="toggleSkill(skill.id)">
-              <app-icon
-                [name]="isSkillSelected(skill.id) ? 'check' : 'add'"
-                [size]="16"
-                aria-hidden="true" />
-              <span>{{ skill.label }}</span>
-            </button>
-          }
-        </div>
-
-        <!-- 3 Cartes de synthèse actualisées en temps réel -->
-        <div class="track-cards-grid">
-          <!-- Carte 1 : Entretien RH -->
-          <div class="track-card">
-            <div class="track-card__icon">
-              <app-icon name="videocam" [size]="28" aria-hidden="true" />
-            </div>
-            <h3 class="track-card__title">Entretien RH ciblé</h3>
-            <div class="track-card__count">{{ rhQuestionsCount() }} questions</div>
-            <p class="track-card__desc">
-              Mises en situation adaptées à vos compétences sélectionnées et à votre posture professionnelle.
-            </p>
-          </div>
-
-          <!-- Carte 2 : QCM -->
-          <div class="track-card">
-            <div class="track-card__icon">
-              <app-icon name="quiz" [size]="28" aria-hidden="true" />
-            </div>
-            <h3 class="track-card__title">QCM de validation</h3>
-            <div class="track-card__count">{{ qcmQuestionsCount() }} questions</div>
-            <p class="track-card__desc">
-              Quiz interactif avec explications immédiates pour consolider vos acquis théoriques sans stress.
-            </p>
-          </div>
-
-          <!-- Carte 3 : Test technique -->
-          <div class="track-card">
-            <div class="track-card__icon">
-              <app-icon name="code" [size]="28" aria-hidden="true" />
-            </div>
-            <h3 class="track-card__title">Défi de code appliqué</h3>
-            <div class="track-card__count">{{ techTasksCount() }} exercice(s)</div>
-            <p class="track-card__desc">
-              Cas concret avec console intégrée et tests unitaires pour démontrer votre savoir-faire technique.
-            </p>
-          </div>
-        </div>
-
-        <div class="skills-section__cta">
-          <app-btn
-            variant="primary"
-            size="lg"
-            icon="auto_awesome"
-            (onClick)="prepareSelectedTrack()">
-            Préparer ce parcours ({{ selectedSkillsCount() }} compétences)
-          </app-btn>
-        </div>
-      </div>
-    </section>
-  } @placeholder {
-    <div class="section-placeholder" aria-hidden="true"></div>
-  }
-
-  <!-- ======================================================== -->
-  <!-- SECTION 4 : "MINI-ENTRETIEN DE 30 SECONDES"             -->
-  <!-- ======================================================== -->
-  @defer (on viewport) {
-    <section #miniInterviewSection class="section section--light mini-interview" aria-labelledby="mini-heading">
-      <div class="section__container">
-        <div class="section__header">
-          <span class="section__kicker">EXPÉRIENCE IMMÉDIATE</span>
-          <h2 id="mini-heading" class="section__title">Mini-entretien de 30 secondes</h2>
-          <p class="section__subtitle">
-            Faites le test sans créer de compte. Aucun accès micro n'est requis : l'analyse est rassurante et immédiate.
-          </p>
-        </div>
-
-        <div class="mini-interview__box">
-          <div class="mini-interview__badge-row">
-            <span class="mini-interview__demo-badge">Démonstration simulée</span>
-          </div>
-
-          <!-- ÉTAPE 1 : CHOIX DE LA QUESTION -->
-          @if (miniStep() === 'select') {
-            <div class="mini-interview__step animate-fade-in">
-              <h3 class="mini-interview__step-title">Choisissez une question à tester :</h3>
-
-              <div class="mini-interview__questions-list" role="radiogroup" aria-label="Questions de démonstration">
-                @for (q of interviewQuestions; track q.id) {
-                  <div
-                    class="question-card"
-                    [class.question-card--selected]="selectedQuestionId() === q.id"
-                    (click)="selectQuestion(q.id)"
-                    role="radio"
-                    [attr.aria-checked]="selectedQuestionId() === q.id"
-                    tabindex="0"
-                    (keydown.enter)="selectQuestion(q.id)"
-                    (keydown.space)="selectQuestion(q.id); $event.preventDefault()">
-                    <div class="question-card__radio" aria-hidden="true">
-                      @if (selectedQuestionId() === q.id) {
-                        <app-icon name="check_circle" [size]="20" />
-                      } @else {
-                        <span class="question-card__circle"></span>
-                      }
-                    </div>
-                    <div class="question-card__text">
-                      <span class="question-card__category">{{ q.category }}</span>
-                      <strong class="question-card__label">{{ q.title }}</strong>
-                    </div>
-                  </div>
-                }
-              </div>
-
-              <!-- Message d'erreur bienveillant -->
-              <div class="mini-interview__error" aria-live="polite">
-                @if (miniInterviewError()) {
-                  <div class="mini-interview__error-msg animate-fade-in">
-                    <app-icon name="info" [size]="18" aria-hidden="true" />
-                    <span>{{ miniInterviewError() }}</span>
-                  </div>
-                }
-              </div>
-
-              <div class="mini-interview__actions">
-                <app-btn
-                  variant="primary"
-                  size="lg"
-                  icon="mic"
-                  (onClick)="startMiniInterview()">
-                  Démarrer mon test (30 s)
-                </app-btn>
-
-                <button type="button" class="mini-interview__skip-link" (click)="skipMiniInterview()">
-                  Passer cette démonstration
-                </button>
-              </div>
-            </div>
-          }
-
-          <!-- ÉTAPE 2 : ENREGISTREMENT SIMULÉ (30 SECONDES) -->
-          @if (miniStep() === 'recording') {
-            <div class="mini-interview__recording animate-fade-in">
-              <div class="mini-interview__timer-pill">
-                <app-icon name="timer" [size]="20" aria-hidden="true" />
-                <span>{{ miniTimerLeft() }} secondes restantes</span>
-              </div>
-
-              <div class="mini-interview__active-question">
-                « {{ interviewQuestions[selectedQuestionId() ? selectedQuestionId()! - 1 : 0].title }} »
-              </div>
-
-              <!-- Onde animée sans micro -->
-              <div class="mini-interview__wave-box" aria-hidden="true">
-                <div class="wave-bar"></div>
-                <div class="wave-bar wave-bar--tall"></div>
-                <div class="wave-bar"></div>
-                <div class="wave-bar wave-bar--tall"></div>
-                <div class="wave-bar wave-bar--short"></div>
-              </div>
-
-              <p class="mini-interview__reassurance-note">
-                <app-icon name="shield" [size]="16" aria-hidden="true" />
-                <span>Enregistrement simulé · Votre micro reste inactif et privé.</span>
-              </p>
-
-              <div class="mini-interview__actions">
-                <app-btn
-                  variant="primary"
-                  size="md"
-                  icon="check"
-                  (onClick)="finishMiniInterview()">
-                  Terminer et voir mon retour
-                </app-btn>
-              </div>
-            </div>
-          }
-
-          <!-- ÉTAPE 3 : RETOURS SIMULÉS (4 CARTES) -->
-          @if (miniStep() === 'results') {
-            <div class="mini-interview__results animate-fade-in">
-              <h3 class="mini-interview__results-title">
-                <app-icon name="verified" [size]="24" aria-hidden="true" />
-                <span>Votre restitution simulée</span>
-              </h3>
-
-              <div class="feedback-grid">
-                <div class="feedback-card">
-                  <div class="feedback-card__header">
-                    <app-icon name="check_circle" [size]="20" aria-hidden="true" />
-                    <h4>Points forts identifiés</h4>
-                  </div>
-                  <p>Structure claire et bonne valorisation de votre contribution personnelle.</p>
-                </div>
-
-                <div class="feedback-card">
-                  <div class="feedback-card__header">
-                    <app-icon name="psychology" [size]="20" aria-hidden="true" />
-                    <h4>Clarté & concision</h4>
-                  </div>
-                  <p>Réponse synthétique sans digression inutile.</p>
-                </div>
-
-                <div class="feedback-card">
-                  <div class="feedback-card__header">
-                    <app-icon name="record_voice_over" [size]="20" aria-hidden="true" />
-                    <h4>Vocabulaire professionnel</h4>
-                  </div>
-                  <p>Termes techniques appropriés et formulation positive.</p>
-                </div>
-
-                <div class="feedback-card feedback-card--highlight">
-                  <div class="feedback-card__header">
-                    <app-icon name="lightbulb" [size]="20" aria-hidden="true" />
-                    <h4>Axe d'aisance</h4>
-                  </div>
-                  <p>Prenez une seconde d'inspiration avant de conclure pour asseoir votre impact.</p>
-                </div>
-              </div>
-
-              <div class="mini-interview__final-actions">
-                <app-btn
-                  variant="primary"
-                  size="lg"
-                  icon="arrow_forward"
-                  routerLink="/inscription">
-                  Voir mon vrai retour : créer mon compte
-                </app-btn>
-
-                <button type="button" class="mini-interview__retry-link" (click)="resetMiniInterview()">
-                  Tester une autre question
-                </button>
-              </div>
-            </div>
-          }
-
-        </div>
-      </div>
-    </section>
-  } @placeholder {
-    <div class="section-placeholder" aria-hidden="true"></div>
-  }
-
-  <!-- ======================================================== -->
-  <!-- SECTION 5 : "DU CV AU OUI" (4 ÉTAPES AU DÉFILEMENT)     -->
-  <!-- ======================================================== -->
-  @defer (on viewport) {
-    <section class="section timeline-section" aria-labelledby="timeline-heading">
-      <div class="section__container">
-        <div class="section__header">
-          <span class="section__kicker">MÉTHODE ÉPROUVÉE</span>
-          <h2 id="timeline-heading" class="section__title">Du CV au oui</h2>
-          <p class="section__subtitle">
-            4 étapes claires pour transformer l'appréhension en réussite tangible.
-          </p>
-        </div>
-
-        <div class="timeline-container">
-          <!-- Coche animée du logo IntervIA -->
-          <div class="timeline-check-visual" aria-hidden="true">
-            <svg viewBox="0 0 100 100" class="timeline-check-svg">
-              <circle cx="50" cy="50" r="44" class="timeline-check-circle" />
-              <path
-                d="M 30 52 L 44 66 L 72 36"
-                class="timeline-check-path"
-                [style.stroke-dashoffset]="100 - (activeTimelineStep() * 25)" />
-            </svg>
-            <span class="timeline-check-step">Étape {{ activeTimelineStep() }}/4</span>
-          </div>
-
-          <!-- Les 4 étapes observées -->
-          <div class="timeline-steps">
-            <div class="timeline-step" data-step="1" [class.timeline-step--active]="activeTimelineStep() >= 1">
-              <div class="timeline-step__marker">1</div>
-              <div class="timeline-step__content">
-                <h3 class="timeline-step__title">Je dépose mon CV ou mon objectif</h3>
-                <p class="timeline-step__desc">
-                  Importez votre CV en PDF, synchronisez votre LinkedIn ou choisissez simplement votre domaine en quelques secondes.
-                </p>
-              </div>
-            </div>
-
-            <div class="timeline-step" data-step="2" [class.timeline-step--active]="activeTimelineStep() >= 2">
-              <div class="timeline-step__marker">2</div>
-              <div class="timeline-step__content">
-                <h3 class="timeline-step__title">L'IA compose mon entraînement sur mesure</h3>
-                <p class="timeline-step__desc">
-                  Questions d'entretien ciblées, QCM théoriques et défis de code sont instantanément calibrés selon l'offre et votre profil.
-                </p>
-              </div>
-            </div>
-
-            <div class="timeline-step" data-step="3" [class.timeline-step--active]="activeTimelineStep() >= 3">
-              <div class="timeline-step__marker">3</div>
-              <div class="timeline-step__content">
-                <h3 class="timeline-step__title">Je m'entraîne à mon rythme sans jugement</h3>
-                <p class="timeline-step__desc">
-                  Pas de caméra obligatoire, pas de chrono anxiogène : vous repassez les questions autant de fois que vous le souhaitez.
-                </p>
-              </div>
-            </div>
-
-            <div class="timeline-step" data-step="4" [class.timeline-step--active]="activeTimelineStep() >= 4">
-              <div class="timeline-step__marker">4</div>
-              <div class="timeline-step__content">
-                <h3 class="timeline-step__title">Je valide mes acquis et je postule</h3>
-                <p class="timeline-step__desc">
-                  Recevez votre diagnostic précis, validez vos badges d'aptitude et postulez directement auprès des entreprises partenaires.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  } @placeholder {
-    <div class="section-placeholder" aria-hidden="true"></div>
-  }
-
-  <!-- ======================================================== -->
-  <!-- SECTION 6 : APPEL FINAL & PIED DE PAGE                  -->
-  <!-- ======================================================== -->
-  @defer (on viewport) {
-    <footer class="hello-footer" aria-labelledby="footer-cta-heading">
-      <div class="hello-footer__cta-banner">
-        <h2 id="footer-cta-heading" class="hello-footer__title">
-          Votre potentiel, pas votre stress.
-        </h2>
-        <p class="hello-footer__subtitle">
-          Rejoignez les candidats qui préparent leurs entretiens avec calme et confiance.
-        </p>
-
-        <div class="hello-footer__actions">
-          <app-btn
-            variant="primary"
-            size="lg"
-            icon="arrow_forward"
-            (onClick)="startPreparation()">
-            Commencer ma préparation
-          </app-btn>
-
+      <div class="dots-track" role="tablist" aria-label="Sélecteur de page rapide">
+        @for (page of pages; track page.pageNumber) {
           <button
             type="button"
-            class="hello-footer__demo-btn"
-            [disabled]="isDemoLoading()"
-            (click)="loginWithDemo()">
-            <app-icon name="smart_toy" [size]="18" aria-hidden="true" />
-            <span>{{ isDemoLoading() ? 'Connexion en cours…' : 'Découvrir avec le compte de démonstration (Mohamed)' }}</span>
+            class="dot-pill"
+            role="tab"
+            [class.active]="currentPage() === page.pageNumber"
+            [attr.aria-selected]="currentPage() === page.pageNumber"
+            [attr.aria-label]="'Aller à la page ' + page.pageNumber + ' : ' + page.pageTitle"
+            (click)="goToPage(page.pageNumber)">
           </button>
-        </div>
-
-        <div class="hello-footer__login-prompt">
-          Déjà inscrit ? <a routerLink="/connexion">Se connecter</a>
-        </div>
+        }
       </div>
+    </div>
 
-      <!-- Réassurance de confidentialité -->
-      <div class="hello-footer__reassurance" role="note">
-        <app-icon name="shield" [size]="20" aria-hidden="true" />
-        <p>
-          Vos données restent strictement sur votre appareil pendant cette démonstration. Aucun enregistrement n'est partagé sans votre consentement.
-        </p>
-      </div>
+    <!-- Suivant (JAMAIS BLOQUÉ, 48px minimum) -->
+    <div class="bottombar-right">
+      @if (!isLastPage()) {
+        <button
+          type="button"
+          class="nav-btn next-btn"
+          (click)="nextPage()"
+          aria-label="Aller à la page suivante">
+          <span class="btn-text">Suivant</span>
+          <app-icon name="arrow_forward" [size]="20" aria-hidden="true"></app-icon>
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="nav-btn finish-btn"
+          (click)="goToPage(1)"
+          aria-label="Recommencer depuis le début">
+          <span class="btn-text">Recommencer</span>
+          <app-icon name="check_circle" [size]="20" aria-hidden="true"></app-icon>
+        </button>
+      }
+    </div>
+  </footer>
 
-      <!-- Liens légaux & copyright -->
-      <div class="hello-footer__bottom">
-        <div class="hello-footer__brand">
-          <app-logo variant="full" [size]="36" />
-        </div>
-        <ul class="hello-footer__links">
-          <li><a href="#" (click)="$event.preventDefault()">Conditions d'utilisation</a></li>
-          <li><a href="#" (click)="$event.preventDefault()">Politique de confidentialité</a></li>
-          <li><a href="#" (click)="$event.preventDefault()">Contact & Support</a></li>
-        </ul>
-        <p class="hello-footer__copy">
-          &copy; 2026 IntervIA · Plateforme d'entraînement aux entretiens propulsée par l'IA.
-        </p>
-      </div>
-    </footer>
-  } @placeholder {
-    <div class="section-placeholder" aria-hidden="true"></div>
+  <!-- Modale Sommaire (4 Chapitres & Passer l'histoire) -->
+  @if (showSommaire()) {
+    <app-sommaire-modal
+      [currentPage]="currentPage()"
+      (goToPage)="goToPage($event); showSommaire.set(false)"
+      (close)="showSommaire.set(false)">
+    </app-sommaire-modal>
   }
 
+  <!-- Drawer Mode Démo (Raccourcis Rôles & Espaces) -->
+  @if (showDemoDrawer()) {
+    <app-demo-drawer
+      (close)="showDemoDrawer.set(false)">
+    </app-demo-drawer>
+  }
 </main>
